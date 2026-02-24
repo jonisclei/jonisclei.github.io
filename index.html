@@ -1,0 +1,1953 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>🌱 Colheita Vida Nova</title>
+<link href="https://fonts.googleapis.com/css2?family=Rye&family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+<script>
+  try {
+    const firebaseConfig = {
+      apiKey: "AIzaSyCdUsoOVV1l1oGkTvD0qoh4Ulgn6edF69Q",
+      authDomain: "colheita-vida-nova.firebaseapp.com",
+      databaseURL: "https://colheita-vida-nova-default-rtdb.firebaseio.com",
+      projectId: "colheita-vida-nova",
+      storageBucket: "colheita-vida-nova.firebasestorage.app",
+      messagingSenderId: "986721934813",
+      appId: "1:986721934813:web:a0b8a019a7f2abb278ea34",
+      measurementId: "G-6CZW4YB37E"
+    };
+    firebase.initializeApp(firebaseConfig);
+    window.FB_db = firebase.database();
+    window.FB_ref = (db, path) => db.ref(path);
+    window.FB_set = (ref, data) => ref.set(data);
+    window.FB_get = (ref) => ref.get();
+    window.FB_onValue = (ref, cb) => ref.on('value', cb);
+    window.firebaseOK = true;
+    console.log("🔥 Firebase conectado!");
+  } catch(e) {
+    console.log("Firebase erro:", e);
+    window.firebaseOK = false;
+  }
+</script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;}
+body{font-family:'Nunito',sans-serif;background:#1a1a2e;min-height:100vh;overflow-x:hidden;}
+#ceu{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;background:linear-gradient(180deg,#1a6bb5,#42a5f5 40%,#4caf50 70%,#2e7d32);transition:background 3s;}
+.ceu-noite{background:linear-gradient(180deg,#0d1b4b,#1a1a4e 40%,#1b5e20 70%,#2e7d32)!important;}
+.ceu-chuva{background:linear-gradient(180deg,#263238,#37474f 40%,#1b5e20 70%,#2e7d32)!important;}
+.estrela{position:absolute;background:white;border-radius:50%;animation:pisca 2s infinite alternate;}
+.chuva-gota{position:absolute;width:2px;background:rgba(120,180,255,0.6);border-radius:2px;animation:chove linear infinite;}
+@keyframes pisca{from{opacity:.2}to{opacity:1}}
+@keyframes chove{from{transform:translateY(-50px)}to{transform:translateY(110vh)}}
+#app{position:relative;z-index:1;max-width:500px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;}
+/* TOPO */
+#topo{background:linear-gradient(135deg,rgba(46,125,50,.95),rgba(27,94,32,.95));backdrop-filter:blur(10px);padding:10px 14px 7px;box-shadow:0 4px 20px rgba(0,0,0,.4);position:sticky;top:0;z-index:100;border-bottom:2px solid rgba(76,175,80,.3);}
+.titulo{font-family:'Fredoka One',cursive;color:white;font-size:1.25rem;animation:brilho 3s infinite alternate;}
+@keyframes brilho{from{text-shadow:0 2px 8px rgba(0,0,0,.4)}to{text-shadow:0 2px 20px rgba(255,213,79,.8)}}
+.stats{display:flex;gap:5px;margin-top:5px;flex-wrap:wrap;}
+.pill{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:3px 9px;color:white;font-weight:800;font-size:.75rem;display:flex;align-items:center;gap:3px;transition:all .3s;}
+.pill.bump{animation:bumpA .4s ease;}
+@keyframes bumpA{0%{transform:scale(1)}50%{transform:scale(1.35);background:rgba(255,213,79,.5)}100%{transform:scale(1)}}
+/* XP */
+#xpbar{background:rgba(0,0,0,.3);padding:4px 14px;display:flex;align-items:center;gap:7px;}
+.xplabel{color:#a5d6a7;font-size:.68rem;font-weight:800;white-space:nowrap;}
+.xptrack{flex:1;height:9px;background:rgba(255,255,255,.1);border-radius:10px;overflow:hidden;}
+.xpfill{height:100%;background:linear-gradient(90deg,#ffd54f,#ff9800,#ff5722);border-radius:10px;transition:width .8s cubic-bezier(.68,-.55,.27,1.55);position:relative;overflow:hidden;}
+.xpshine{position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.6),transparent);animation:shine 2s infinite;}
+@keyframes shine{0%{left:-100%}100%{left:200%}}
+/* ABAS */
+#abas{display:flex;background:rgba(0,0,0,.4);backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,.1);overflow-x:auto;scrollbar-width:none;}
+#abas::-webkit-scrollbar{display:none;}
+.aba{flex:1;min-width:52px;padding:8px 3px;text-align:center;font-size:.58rem;font-weight:800;color:rgba(255,255,255,.4);cursor:pointer;border-bottom:3px solid transparent;transition:all .3s;}
+.aba.ativa{color:#ffd54f;border-bottom-color:#ffd54f;}
+.aba span{display:block;font-size:1.2rem;margin-bottom:1px;transition:transform .3s;}
+.aba.ativa span{transform:scale(1.2);}
+.aba:active span{transform:scale(.9);}
+/* TELAS */
+.tela{display:none;padding:11px;overflow-y:auto;max-height:calc(100vh - 148px);}
+.tela.ativa{display:block;}
+.tela::-webkit-scrollbar{width:3px;}
+.tela::-webkit-scrollbar-thumb{background:rgba(255,255,255,.2);border-radius:4px;}
+/* CARDS */
+.card{background:rgba(255,255,255,.07);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.12);border-radius:15px;padding:13px;margin-bottom:11px;box-shadow:0 4px 20px rgba(0,0,0,.3);}
+.card h3{font-family:'Fredoka One',cursive;color:#ffd54f;font-size:.95rem;margin-bottom:9px;text-shadow:0 1px 6px rgba(255,213,79,.4);}
+/* PERSONAGEM */
+#pcontainer{position:relative;height:80px;margin-bottom:8px;}
+#personagem{position:absolute;bottom:0;font-size:2.8rem;transition:left .8s cubic-bezier(.68,-.55,.27,1.55);filter:drop-shadow(0 4px 8px rgba(0,0,0,.4));animation:idle 1.5s ease-in-out infinite;cursor:pointer;left:10%;}
+@keyframes idle{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.fala{position:absolute;bottom:62px;background:white;color:#333;border-radius:14px 14px 14px 4px;padding:5px 11px;font-size:.7rem;font-weight:700;box-shadow:0 4px 12px rgba(0,0,0,.3);max-width:190px;animation:popIn .3s ease;}
+@keyframes popIn{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:scale(1)}}
+/* CENÁRIO */
+.cenario{background:rgba(0,0,0,.2);border-radius:16px;padding:10px;margin-bottom:9px;border:1px solid rgba(255,255,255,.1);text-align:center;}
+.cenario-icones{font-size:1.5rem;display:flex;justify-content:center;gap:12px;}
+.cenario-icone{animation:float 3s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+/* TERRENO */
+#grade{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:11px;}
+.parcela{aspect-ratio:1;border-radius:13px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;position:relative;overflow:hidden;transition:transform .15s,box-shadow .3s;border:2px solid rgba(255,255,255,.1);}
+.parcela:active{transform:scale(.87)!important;}
+.p-vazia{background:linear-gradient(135deg,#5d4037,#4e342e);box-shadow:0 4px 12px rgba(0,0,0,.4);}
+.p-vazia:hover{transform:scale(1.06);box-shadow:0 6px 20px rgba(76,175,80,.5);}
+.p-crescendo{background:linear-gradient(135deg,#33691e,#1b5e20);animation:respira 2s ease-in-out infinite;}
+@keyframes respira{0%,100%{box-shadow:0 4px 12px rgba(0,0,0,.4)}50%{box-shadow:0 4px 22px rgba(76,175,80,.6)}}
+.p-pronta{background:linear-gradient(135deg,#558b2f,#33691e);animation:pronta .8s ease-in-out infinite alternate;}
+@keyframes pronta{from{box-shadow:0 4px 12px rgba(0,0,0,.3);transform:scale(1)}to{box-shadow:0 4px 28px rgba(139,195,74,.9);transform:scale(1.06)}}
+.p-bloqueada{background:linear-gradient(135deg,#37474f,#263238);cursor:not-allowed;opacity:.5;}
+.pemoji{font-size:1.8rem;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4));transition:transform .3s;}
+.p-pronta .pemoji{animation:pula .5s ease infinite alternate;}
+@keyframes pula{from{transform:translateY(0)}to{transform:translateY(-5px)}}
+.ptempo{font-size:.56rem;color:rgba(255,255,255,.85);font-weight:800;margin-top:2px;text-shadow:0 1px 3px rgba(0,0,0,.5);}
+.pbadge{position:absolute;top:3px;right:3px;background:#ffd54f;border-radius:5px;font-size:.5rem;font-weight:900;color:#333;padding:1px 4px;animation:badgep .5s infinite alternate;}
+@keyframes badgep{from{transform:scale(1)}to{transform:scale(1.2)}}
+/* SEMENTES */
+.gsementes{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;}
+.bsemente{background:rgba(255,255,255,.05);border:2px solid rgba(255,255,255,.1);border-radius:13px;padding:9px;cursor:pointer;text-align:center;transition:all .3s;position:relative;}
+.bsemente.sel{background:linear-gradient(135deg,rgba(76,175,80,.3),rgba(46,125,50,.4));border-color:#4caf50;box-shadow:0 0 18px rgba(76,175,80,.5);}
+.bsemente:active{transform:scale(.92);}
+.semoji{font-size:1.5rem;display:block;}
+.snome{font-weight:800;font-size:.73rem;color:#e8f5e9;margin-top:2px;}
+.sinfo{font-size:.62rem;color:rgba(255,255,255,.5);}
+.spreco{font-weight:900;color:#ffd54f;font-size:.77rem;}
+/* LOJA / LISTA */
+.item{display:flex;align-items:center;gap:9px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:13px;padding:10px;margin-bottom:8px;transition:all .3s;}
+.item:hover{background:rgba(255,255,255,.1);transform:translateY(-2px);}
+.iemoji{font-size:1.9rem;width:42px;text-align:center;}
+.iinfo{flex:1;}
+.iinfo h4{font-weight:800;color:#e8f5e9;font-size:.84rem;}
+.iinfo p{font-size:.68rem;color:rgba(255,255,255,.4);}
+.btnacao{margin-left:auto;background:linear-gradient(135deg,#ffd54f,#ff9800);border:none;border-radius:9px;padding:7px 11px;font-weight:900;font-size:.73rem;cursor:pointer;color:#1a1a2e;white-space:nowrap;transition:all .3s;box-shadow:0 3px 10px rgba(255,152,0,.4);font-family:'Nunito',sans-serif;}
+.btnacao:hover{transform:scale(1.05);}
+.btnacao:active{transform:scale(.93);}
+.btnacao:disabled{background:rgba(255,255,255,.1);color:rgba(255,255,255,.3);box-shadow:none;cursor:not-allowed;}
+.btnok{background:linear-gradient(135deg,#4caf50,#2e7d32)!important;color:white!important;}
+/* CASA */
+#casacena{border-radius:16px;overflow:hidden;margin-bottom:11px;position:relative;min-height:190px;border:2px solid rgba(255,255,255,.1);box-shadow:0 8px 32px rgba(0,0,0,.5);}
+#casasprite{font-size:5rem;display:block;text-align:center;filter:drop-shadow(0 8px 16px rgba(0,0,0,.5));animation:casaf 3s ease-in-out infinite;}
+@keyframes casaf{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+/* AMIGOS */
+.amigo{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:13px;padding:11px;margin-bottom:8px;display:flex;align-items:center;gap:9px;}
+.aavatar{font-size:2.1rem;width:46px;height:46px;background:rgba(255,255,255,.1);border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid rgba(255,255,255,.2);}
+.ainfo{flex:1;}
+.ainfo h4{font-weight:800;color:#e8f5e9;font-size:.84rem;}
+.ainfo p{font-size:.68rem;color:rgba(255,255,255,.4);}
+.online{width:9px;height:9px;border-radius:50%;background:#4caf50;animation:pisca 1.5s infinite;margin-left:auto;}
+.offline{background:#666!important;animation:none!important;}
+.btnvisit{background:linear-gradient(135deg,#29b6f6,#0288d1);border:none;border-radius:9px;padding:6px 11px;font-weight:900;font-size:.72rem;cursor:pointer;color:white;font-family:'Nunito',sans-serif;transition:all .3s;margin-left:7px;}
+/* MERCADO */
+.mitem{display:flex;align-items:center;gap:9px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:10px;margin-bottom:7px;transition:all .3s;}
+.mitem:hover{background:rgba(255,255,255,.12);}
+.vendedor{font-size:.66rem;color:rgba(255,255,255,.4);}
+.btncompram{background:linear-gradient(135deg,#29b6f6,#0288d1);border:none;border-radius:9px;padding:7px 12px;font-weight:900;font-size:.73rem;cursor:pointer;color:white;font-family:'Nunito',sans-serif;margin-left:auto;transition:all .3s;white-space:nowrap;}
+.btnvender{background:linear-gradient(135deg,#ffd54f,#ff9800);border:none;border-radius:9px;padding:7px 12px;font-weight:900;font-size:.73rem;cursor:pointer;color:#1a1a2e;transition:all .3s;font-family:'Nunito',sans-serif;}
+/* IMPOSTO */
+.impcard{background:linear-gradient(135deg,rgba(244,67,54,.15),rgba(183,28,28,.15));border:2px solid rgba(244,67,54,.3);border-radius:13px;padding:13px;margin-bottom:11px;}
+.impcard h4{font-family:'Fredoka One',cursive;color:#ef5350;font-size:.95rem;}
+.impbarra{height:9px;background:rgba(255,255,255,.1);border-radius:10px;overflow:hidden;margin:7px 0;}
+.impfill{height:100%;border-radius:10px;transition:width .5s;}
+/* ROUBO */
+.roubocard{background:linear-gradient(135deg,rgba(255,152,0,.15),rgba(230,81,0,.15));border:2px solid rgba(255,152,0,.3);border-radius:13px;padding:11px;margin-bottom:8px;display:flex;align-items:center;gap:9px;}
+.btnroubar{background:linear-gradient(135deg,#ff7043,#e64a19);border:none;border-radius:9px;padding:7px 11px;font-weight:900;font-size:.72rem;cursor:pointer;color:white;font-family:'Nunito',sans-serif;margin-left:auto;animation:pulsebtn .8s infinite alternate;white-space:nowrap;}
+@keyframes pulsebtn{from{box-shadow:0 0 0 rgba(255,112,67,0)}to{box-shadow:0 0 14px rgba(255,112,67,.9)}}
+.tag-urg{background:#f44336;color:white;border-radius:5px;padding:1px 6px;font-size:.6rem;font-weight:900;animation:badgep .5s infinite alternate;}
+/* ANIMAIS */
+.animalcard{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:13px;padding:11px;margin-bottom:8px;}
+.animalsprite{font-size:2.4rem;filter:drop-shadow(0 3px 6px rgba(0,0,0,.4));animation:idle 2s ease-in-out infinite;}
+.fomebar{height:7px;background:rgba(255,255,255,.1);border-radius:10px;overflow:hidden;margin-top:4px;}
+.fomefill{height:100%;border-radius:10px;transition:width .5s;}
+.btncolanimal{background:linear-gradient(135deg,#ffd54f,#ff9800);border:none;border-radius:9px;padding:7px 11px;font-weight:900;cursor:pointer;color:#1a1a2e;font-size:.73rem;font-family:'Nunito',sans-serif;margin-top:6px;width:100%;}
+.btncolanimal:disabled{background:rgba(255,255,255,.1);color:rgba(255,255,255,.3);cursor:not-allowed;}
+.btncolanimal:not(:disabled){animation:pulsebtn .8s infinite alternate;}
+/* MISSÕES */
+.missao{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:13px;padding:11px;margin-bottom:8px;display:flex;align-items:center;gap:9px;transition:all .3s;}
+.missao.completa{border-color:rgba(76,175,80,.5);background:rgba(76,175,80,.1);}
+.missao.coletada{opacity:.5;}
+.missaobarra{height:5px;background:rgba(255,255,255,.1);border-radius:10px;margin-top:4px;overflow:hidden;}
+.missaofill{height:100%;background:linear-gradient(90deg,#4caf50,#cddc39);border-radius:10px;transition:width .6s ease;}
+.btncolet{background:linear-gradient(135deg,#ffd54f,#ff9800);border:none;border-radius:9px;padding:7px 10px;font-weight:900;cursor:pointer;color:#1a1a2e;font-size:.72rem;font-family:'Nunito',sans-serif;animation:pulsebtn .8s infinite alternate;white-space:nowrap;}
+/* RANKING */
+.rankitem{display:flex;align-items:center;gap:9px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:13px;padding:11px;margin-bottom:7px;}
+.rankpos{font-family:'Fredoka One',cursive;font-size:1.35rem;width:34px;text-align:center;}
+.rankinfo{flex:1;}
+.rankinfo h4{font-weight:800;color:#e8f5e9;font-size:.84rem;}
+.rankinfo p{font-size:.68rem;color:rgba(255,255,255,.4);}
+.rankmoedas{margin-left:auto;font-weight:900;color:#ffd54f;font-size:.82rem;}
+/* MODAL PLANTAR */
+#modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);z-index:200;align-items:flex-end;justify-content:center;}
+#modal.aberto{display:flex;}
+#modalbox{background:linear-gradient(135deg,#1a1a3e,#0d1b4b);border:1px solid rgba(255,255,255,.15);border-radius:22px 22px 0 0;padding:18px;width:100%;max-width:500px;animation:slideUp .35s cubic-bezier(.68,-.55,.27,1.55);}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+#modaltitulo{font-family:'Fredoka One',cursive;font-size:1.2rem;color:#ffd54f;text-align:center;margin-bottom:13px;}
+.gmodal{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;}
+.opcao{background:rgba(255,255,255,.05);border:2px solid rgba(255,255,255,.1);border-radius:13px;padding:9px 4px;text-align:center;cursor:pointer;transition:all .25s;}
+.opcao:hover{background:rgba(76,175,80,.2);border-color:#4caf50;transform:scale(1.05);}
+.opcao:active{transform:scale(.92);}
+.btnfecharm{width:100%;margin-top:11px;padding:11px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.1);border-radius:11px;color:rgba(255,255,255,.6);font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif;font-size:.88rem;}
+/* MODAL VISITA */
+#mvisita{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(8px);z-index:300;align-items:center;justify-content:center;}
+#mvisita.aberto{display:flex;}
+#visitabox{background:linear-gradient(135deg,#0d1b4b,#1a237e);border:2px solid rgba(41,182,246,.4);border-radius:22px;padding:22px;width:90%;max-width:310px;text-align:center;animation:popIn .4s ease;}
+#visitafazenda{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin:13px 0;}
+.vparcela{aspect-ratio:1;border-radius:9px;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:1.3rem;}
+/* PARTICULAS */
+#particulas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:999;overflow:hidden;}
+.particula{position:absolute;font-size:1.3rem;animation:floatup 1.5s ease-out forwards;pointer-events:none;}
+@keyframes floatup{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-90px) scale(1.6)}}
+/* NOTIF */
+#notif{position:fixed;bottom:75px;left:50%;transform:translateX(-50%) translateY(120px);background:linear-gradient(135deg,#1b5e20,#2e7d32);border:1px solid rgba(76,175,80,.5);color:white;padding:11px 20px;border-radius:28px;font-weight:800;font-size:.85rem;z-index:998;transition:transform .4s cubic-bezier(.68,-.55,.27,1.55);box-shadow:0 6px 25px rgba(0,0,0,.4);white-space:nowrap;pointer-events:none;}
+#notif.show{transform:translateX(-50%) translateY(0);}
+/* NIVEL UP */
+.nivelup{position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.8);backdrop-filter:blur(10px);animation:fadein .3s ease;}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+.nivelupbox{background:linear-gradient(135deg,#1a237e,#283593);border:2px solid #ffd54f;border-radius:22px;padding:28px;text-align:center;animation:popIn .5s cubic-bezier(.68,-.55,.27,1.55);max-width:270px;margin:18px;}
+.nivelupbox h2{font-family:'Fredoka One',cursive;color:#ffd54f;font-size:2.1rem;}
+.btnokn{background:linear-gradient(135deg,#ffd54f,#ff9800);border:none;border-radius:11px;padding:11px 28px;font-weight:900;cursor:pointer;font-size:.95rem;font-family:'Nunito',sans-serif;margin-top:9px;color:#1a1a2e;}
+/* ALERTAS */
+#alertafome{display:none;position:fixed;bottom:130px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#b71c1c,#c62828);border:2px solid #ef5350;border-radius:18px;padding:11px 18px;z-index:997;box-shadow:0 6px 25px rgba(183,28,28,.6);animation:pulsebtn .5s infinite alternate;text-align:center;min-width:210px;}
+#alertaimposto{display:none;position:fixed;bottom:75px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#4a148c,#6a1b9a);border:2px solid #ce93d8;border-radius:18px;padding:11px 18px;z-index:996;box-shadow:0 6px 25px rgba(74,20,140,.7);animation:pulsebtn .5s infinite alternate;text-align:center;min-width:210px;}
+/* MOEDA PERSONALIZADA */
+.moeda{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;background:linear-gradient(135deg,#ffd700,#ff9800);border-radius:50%;font-size:.65rem;font-weight:900;color:#7b4f00;border:2px solid #ff9800;box-shadow:0 2px 6px rgba(255,152,0,.5);vertical-align:middle;margin-right:2px;flex-shrink:0;}
+.moeda-g{width:22px;height:22px;font-size:.78rem;}
+.moeda-sm{width:14px;height:14px;font-size:.52rem;}
+
+/* TUTORIAL */
+#tela-tutorial{background:rgba(0,0,0,.85);backdrop-filter:blur(10px);}
+.tut-card{background:linear-gradient(135deg,rgba(26,35,126,.9),rgba(13,27,75,.9));border:2px solid rgba(255,213,79,.3);border-radius:18px;padding:18px;margin-bottom:12px;}
+.tut-card h3{font-family:'Fredoka One',cursive;color:#ffd54f;font-size:1.05rem;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.tut-passo{display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;background:rgba(255,255,255,.05);border-radius:11px;padding:10px;}
+.tut-num{background:linear-gradient(135deg,#ffd54f,#ff9800);color:#1a1a2e;font-weight:900;font-size:.85rem;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.tut-texto{flex:1;}
+.tut-texto h4{font-weight:800;color:#e8f5e9;font-size:.82rem;margin-bottom:2px;}
+.tut-texto p{font-size:.72rem;color:rgba(255,255,255,.5);line-height:1.4;}
+.tut-regra{display:flex;align-items:center;gap:9px;background:rgba(255,255,255,.05);border-radius:11px;padding:9px;margin-bottom:7px;}
+.tut-icon{font-size:1.6rem;flex-shrink:0;}
+.tut-desc h4{font-weight:800;color:#e8f5e9;font-size:.8rem;}
+.tut-desc p{font-size:.7rem;color:rgba(255,255,255,.45);line-height:1.4;}
+.tut-aviso{background:linear-gradient(135deg,rgba(244,67,54,.2),rgba(183,28,28,.2));border:1px solid rgba(244,67,54,.4);border-radius:11px;padding:10px;margin-bottom:8px;font-size:.76rem;color:#ffcdd2;font-weight:700;}
+.tut-dica{background:linear-gradient(135deg,rgba(76,175,80,.2),rgba(27,94,32,.2));border:1px solid rgba(76,175,80,.4);border-radius:11px;padding:10px;margin-bottom:8px;font-size:.76rem;color:#c8e6c9;font-weight:700;}
+
+#btnsom{position:fixed;bottom:18px;right:14px;z-index:200;background:rgba(0,0,0,.5);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.2);border-radius:50%;width:42px;height:42px;display:flex;align-items:center;justify-content:center;font-size:1.25rem;cursor:pointer;transition:all .3s;box-shadow:0 4px 15px rgba(0,0,0,.4);}
+
+/* ===== CAPA ===== */
+#capa{position:fixed;inset:0;z-index:9999;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+#capa-ceu{position:absolute;inset:0;background:linear-gradient(180deg,#0a1628 0%,#1a3a6b 20%,#2e6da4 40%,#87ceeb 58%,#b8e4f7 68%,#d4f0c0 76%,#5a8a2a 82%,#3d6b1a 100%);}
+.capa-nuvem{position:absolute;background:rgba(255,255,255,.8);border-radius:50px;animation:cnuvem linear infinite;}
+@keyframes cnuvem{from{transform:translateX(-250px)}to{transform:translateX(calc(100vw + 250px))}}
+#capa-sol{position:absolute;top:8%;left:8%;width:80px;height:80px;background:radial-gradient(circle,#fff9c4,#ffd54f,#ff9800);border-radius:50%;box-shadow:0 0 60px rgba(255,213,79,.9);animation:csolGira 12s linear infinite,csolBrilha 2s ease-in-out infinite alternate;}
+@keyframes csolGira{to{transform:rotate(360deg)}}
+@keyframes csolBrilha{from{box-shadow:0 0 60px rgba(255,213,79,.8)}to{box-shadow:0 0 120px rgba(255,213,79,1),0 0 200px rgba(255,152,0,.4)}}
+.capa-raio{position:absolute;top:8%;left:8%;width:80px;height:80px;animation:csolGira 6s linear infinite;}
+.craio{position:absolute;top:50%;left:50%;width:52px;height:3px;background:linear-gradient(90deg,rgba(255,213,79,.9),transparent);transform-origin:0 50%;border-radius:2px;}
+#capa-lua{position:absolute;top:7%;right:10%;width:65px;height:65px;background:radial-gradient(circle at 35% 35%,#fffde7,#ffd54f);border-radius:50%;box-shadow:0 0 50px rgba(255,213,79,.7);animation:csolBrilha 3s ease-in-out infinite alternate;}
+.capa-estrela{position:absolute;background:white;border-radius:50%;animation:pisca 2s infinite alternate;}
+#capa-campo{position:absolute;bottom:0;left:0;right:0;height:30%;background:linear-gradient(180deg,#4a8f1f,#3d6b1a);}
+.cplanta{position:absolute;font-size:1.9rem;animation:cvento 3s ease-in-out infinite;bottom:18%;}
+@keyframes cvento{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
+.canal{position:absolute;font-size:2.2rem;bottom:29%;animation:canal linear infinite;}
+@keyframes canal{0%{transform:translateX(0) scaleX(1)}49%{transform:translateX(55px) scaleX(1)}50%{transform:translateX(55px) scaleX(-1)}100%{transform:translateX(0) scaleX(-1)}}
+#chero{position:absolute;bottom:30%;left:50%;transform:translateX(-50%);font-size:4.5rem;z-index:10;filter:drop-shadow(0 8px 16px rgba(0,0,0,.5));animation:cheeroPula 1.8s ease-in-out infinite;}
+@keyframes cheeroPula{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-18px)}}
+.capa-mont{position:absolute;bottom:28%;}
+#capa-vinheta{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 50%,transparent 35%,rgba(0,0,0,.55) 100%);}
+.cflor{position:absolute;animation:cflor linear infinite;pointer-events:none;font-size:1.1rem;}
+@keyframes cflor{0%{transform:translateY(0) rotate(0deg);opacity:1}100%{transform:translateY(-110vh) rotate(720deg);opacity:0}}
+/* LOGO */
+#capa-logo{position:relative;text-align:center;padding:16px 28px;z-index:20;margin-bottom:10px;}
+#capa-logo::before{content:'';position:absolute;inset:-12px;background:radial-gradient(ellipse,rgba(255,213,79,.2),transparent 70%);border-radius:28px;animation:logoBrilha 2s ease-in-out infinite alternate;}
+@keyframes logoBrilha{from{opacity:.5}to{opacity:1}}
+.capa-titulo{font-family:'Rye',serif;font-size:clamp(2.2rem,10vw,5.8rem);color:transparent;background:linear-gradient(180deg,#fff9c4 0%,#ffd54f 30%,#ff9800 60%,#e65100 100%);-webkit-background-clip:text;background-clip:text;filter:drop-shadow(0 4px 0 #7b3000) drop-shadow(0 8px 22px rgba(0,0,0,.9));letter-spacing:2px;line-height:1.05;display:block;animation:titlePop .7s cubic-bezier(.68,-.55,.27,1.55) both;}
+@keyframes titlePop{from{transform:scale(0) rotate(-10deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+.capa-sub{font-family:'Fredoka One',cursive;font-size:clamp(.85rem,3.5vw,1.6rem);color:#c8e6c9;text-shadow:0 2px 8px rgba(0,0,0,.9),0 0 30px rgba(76,175,80,.5);letter-spacing:4px;margin-top:5px;animation:cfadeup .7s .25s ease both;}
+.capa-badge{display:inline-block;background:linear-gradient(135deg,#4caf50,#2e7d32);border:2px solid #81c784;border-radius:20px;padding:4px 14px;font-size:.76rem;font-weight:800;color:white;letter-spacing:2px;margin-top:6px;box-shadow:0 4px 15px rgba(76,175,80,.4);animation:cfadeup .7s .4s ease both;}
+@keyframes cfadeup{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+/* BOTÃO */
+#capa-btn{background:linear-gradient(135deg,#ffd54f,#ff9800,#e65100);border:none;border-radius:50px;padding:clamp(13px,3vw,20px) clamp(35px,8vw,75px);font-family:'Fredoka One',cursive;font-size:clamp(1.2rem,4vw,2rem);color:white;text-shadow:0 2px 4px rgba(0,0,0,.4);cursor:pointer;box-shadow:0 8px 30px rgba(255,152,0,.6),0 0 0 4px rgba(255,213,79,.3),inset 0 2px 0 rgba(255,255,255,.3);animation:cbtnPulsa 1.5s ease-in-out infinite,cfadeup .7s .6s ease both;transition:transform .2s;position:relative;z-index:20;letter-spacing:2px;}
+@keyframes cbtnPulsa{0%,100%{box-shadow:0 8px 30px rgba(255,152,0,.6),0 0 0 4px rgba(255,213,79,.3)}50%{box-shadow:0 8px 55px rgba(255,152,0,.95),0 0 0 9px rgba(255,213,79,.55),0 0 90px rgba(255,152,0,.3)}}
+#capa-btn:active{transform:scale(.94);}
+#capa-feats{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:12px;z-index:20;position:relative;animation:cfadeup .7s .8s ease both;}
+.cfeat{background:rgba(0,0,0,.5);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:4px 11px;font-size:clamp(.58rem,1.5vw,.75rem);font-weight:800;color:rgba(255,255,255,.9);}
+.cmoeda-cai{position:absolute;animation:cmoedaCai linear infinite;pointer-events:none;z-index:8;}
+@keyframes cmoedaCai{0%{transform:translateY(-60px) rotate(0deg);opacity:1}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}
+/* TRANSIÇÃO */
+#capa.saindo{animation:capaOut .8s ease forwards;}
+@keyframes capaOut{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.08)}}
+
+/* PRIVACIDADE FIX */
+#tela-privacidade.ativa{
+  display:block !important;
+  overflow-y:auto !important;
+  -webkit-overflow-scrolling:touch;
+  max-height:calc(100vh - 148px);
+  padding-bottom:60px;
+}
+</style>
+<!-- Google AdSense -->
+<meta name="google-adsense-account" content="ca-pub-9867661052239367">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9867661052239367"
+     crossorigin="anonymous"></script>
+</head>
+<body>
+
+<!-- TELA CADASTRO -->
+<div id="tela-cadastro">
+  <div class="cadastro-box">
+    <div style="font-size:3rem;margin-bottom:8px">🌱</div>
+    <div class="cadastro-titulo">Colheita Vida Nova</div>
+    <p style="color:rgba(255,255,255,.5);font-size:.8rem;margin-bottom:16px">Como quer ser chamado no ranking? 🏆</p>
+    <input class="cadastro-input" id="inputApelido" maxlength="20" placeholder="Seu apelido aqui..." onkeydown="if(event.key==='Enter')confirmarCadastro()"/>
+    <button class="btn-cadastro" onclick="confirmarCadastro()">🚀 Entrar no Jogo!</button>
+    <p style="font-size:.65rem;color:rgba(255,255,255,.25);margin-top:12px">Seu apelido aparecerá no ranking global 🌍</p>
+  </div>
+</div>
+
+<!-- MODAL PRIVACIDADE -->
+<div id="modal-privacidade" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:700;overflow-y:auto;padding:16px;">
+  <div style="max-width:500px;margin:0 auto;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <div style="font-family:'Fredoka One',cursive;color:#ffd54f;font-size:1.3rem;">📋 Privacidade</div>
+      <button onclick="document.getElementById('modal-privacidade').style.display='none'" style="background:rgba(255,255,255,.1);border:none;border-radius:50%;width:36px;height:36px;color:white;font-size:1.2rem;cursor:pointer;">✕</button>
+    </div>
+    <div class="card">
+      <h3>🌱 Sobre o Jogo</h3>
+      <p style="font-size:.78rem;color:rgba(255,255,255,.6);line-height:1.6">Colheita Vida Nova é um jogo gratuito criado por <strong style="color:#ffd54f">Jonisclei</strong> do Canal Evolução Jonis e Filhos. Disponível em jonisclei.github.io/colheita-vida-nova. Totalmente gratuito, sem cadastro de dados pessoais.</p>
+    </div>
+    <div class="card">
+      <h3>📦 Dados Coletados</h3>
+      <p style="font-size:.78rem;color:rgba(255,255,255,.6);line-height:1.8">🎮 <strong style="color:#ffd54f">Apelido</strong> — escolhido por você para o ranking<br>🏆 <strong style="color:#ffd54f">Progresso</strong> — nível e moedas para competição<br>📺 <strong style="color:#ffd54f">Anúncios</strong> — Google AdMob personaliza anúncios<br>🔥 <strong style="color:#ffd54f">Firebase</strong> — salva ranking global com seu apelido</p>
+    </div>
+    <div class="card">
+      <h3>🍪 Armazenamento</h3>
+      <p style="font-size:.78rem;color:rgba(255,255,255,.6);line-height:1.6">Usamos localStorage para salvar progresso no seu celular. Não usamos cookies de rastreamento. Seus dados ficam só no seu dispositivo.</p>
+    </div>
+    <div class="card">
+      <h3>👶 Crianças e Segurança</h3>
+      <p style="font-size:.78rem;color:rgba(255,255,255,.6);line-height:1.6">Jogo adequado para todas as idades. Não coletamos dados de menores de 13 anos sem consentimento. Não vendemos seus dados para terceiros.</p>
+    </div>
+    <div class="card" style="background:linear-gradient(135deg,rgba(76,175,80,.1),rgba(27,94,32,.1));border-color:rgba(76,175,80,.3);">
+      <h3>📬 Contato</h3>
+      <p style="font-size:.78rem;color:rgba(255,255,255,.6);line-height:1.9">👨‍💻 <strong style="color:#ffd54f">Jonisclei</strong><br>📧 jonis2223@gmail.com<br>🌐 Canal Evolução Jonis e Filhos<br>🔗 jonisclei.github.io/colheita-vida-nova</p>
+    </div>
+    <div style="text-align:center;padding:16px;color:rgba(255,255,255,.25);font-size:.68rem;">
+      © 2026 Colheita Vida Nova — Todos os direitos reservados<br>Desenvolvido por Jonisclei
+    </div>
+    <button onclick="document.getElementById('modal-privacidade').style.display='none'" style="width:100%;background:linear-gradient(135deg,#c084fc,#818cf8);border:none;border-radius:12px;padding:12px;color:white;font-family:'Fredoka One',cursive;font-size:1rem;cursor:pointer;margin-bottom:20px;">
+      ✕ Fechar
+    </button>
+  </div>
+</div>
+
+<!-- MODAL PRIVACIDADE -->
+<div id="modal-privacidade" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:9000;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 12px;">
+  <div style="max-width:480px;margin:0 auto;padding-bottom:30px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;position:sticky;top:0;background:rgba(0,0,0,.95);padding:8px 0;z-index:1;">
+      <div style="font-family:'Fredoka One',cursive;color:#ffd54f;font-size:1.3rem;">📋 Privacidade</div>
+      <button onclick="document.getElementById('modal-privacidade').style.display='none'" style="background:rgba(255,255,255,.15);border:none;border-radius:50%;width:36px;height:36px;color:white;font-size:1.1rem;cursor:pointer;">✕</button>
+    </div>
+    <div class="card"><h3>🌱 Sobre o Jogo</h3><p style="font-size:.78rem;color:rgba(255,255,255,.6);line-height:1.6">Colheita Vida Nova é um jogo gratuito criado por <strong style="color:#ffd54f">Jonisclei</strong> do Canal Evolução Jonis e Filhos. Disponível em jonisclei.github.io/colheita-vida-nova. Totalmente gratuito, sem cadastro de dados pessoais.</p></div>
+    <div class="card"><h3>📦 Dados Coletados</h3><p style="font-size:.78rem;color:rgba(255,255,255,.6);line-height:1.9">🎮 <strong style="color:#ffd54f">Apelido</strong> — escolhido por você para o ranking<br>🏆 <strong style="color:#ffd54f">Progresso</strong> — nível e moedas para competição<br>📺 <strong style="color:#ffd54f">Anúncios</strong> — Google AdMob personaliza anúncios<br>🔥 <strong style="color:#ffd54f">Firebase</strong> — salva ranking global com seu apelido</p></div>
+    <div class="card"><h3>🍪 Armazenamento</h3><p style="font-size:.78rem;color:rgba(255,255,255,.6);line-height:1.6">Usamos localStorage para salvar progresso no seu celular. Não usamos cookies de rastreamento. Seus dados ficam só no seu dispositivo e podem ser apagados a qualquer momento.</p></div>
+    <div class="card"><h3>👶 Crianças e Segurança</h3><p style="font-size:.78rem;color:rgba(255,255,255,.6);line-height:1.6">Jogo adequado para todas as idades. Não coletamos dados de menores de 13 anos. Não vendemos ou compartilhamos seus dados com terceiros.</p></div>
+    <div class="card" style="background:linear-gradient(135deg,rgba(76,175,80,.1),rgba(27,94,32,.1));border-color:rgba(76,175,80,.3);"><h3>📬 Contato</h3><p style="font-size:.78rem;color:rgba(255,255,255,.6);line-height:1.9">👨‍💻 <strong style="color:#ffd54f">Jonisclei</strong><br>📧 jonis2223@gmail.com<br>🌐 Canal Evolução Jonis e Filhos<br>🔗 jonisclei.github.io/colheita-vida-nova</p></div>
+    <div style="text-align:center;padding:12px;color:rgba(255,255,255,.2);font-size:.65rem;">© 2026 Colheita Vida Nova — Todos os direitos reservados</div>
+    <button onclick="document.getElementById('modal-privacidade').style.display='none'" style="width:100%;background:linear-gradient(135deg,#4caf50,#2e7d32);border:none;border-radius:12px;padding:13px;color:white;font-family:'Fredoka One',cursive;font-size:1rem;cursor:pointer;">✅ Fechar</button>
+  </div>
+</div>
+
+<!-- MODAL ANÚNCIO RECOMPENSADO -->
+<div id="modal-anuncio">
+  <div class="anuncio-box">
+    <div style="font-size:2.5rem">📺</div>
+    <h3 style="font-family:'Fredoka One',cursive;color:#ffd54f;font-size:1.2rem;margin:8px 0">Assistindo anúncio...</h3>
+    <p style="font-size:.8rem;color:rgba(255,255,255,.5);margin-bottom:12px">Aguarde para ganhar suas moedas! 🪙</p>
+    <div class="anuncio-timer" id="anuncio-timer">30</div>
+    <div class="barra-anuncio"><div class="barra-fill-anuncio" id="barra-anuncio" style="width:100%"></div></div>
+    <p style="font-size:.75rem;color:#ffd54f;font-weight:800" id="anuncio-recompensa">+500 🪙</p>
+    <p style="font-size:.65rem;color:rgba(255,255,255,.3);margin-top:8px">Não feche esta janela!</p>
+  </div>
+
+
+<!-- ===== CAPA ===== -->
+<div id="capa">
+  <div id="capa-ceu"></div>
+  <div id="capa-vinheta"></div>
+  <div id="capa-sol"></div>
+  <div class="capa-raio" id="capa-raiosol"></div>
+  <div id="capa-lua"></div>
+  <div id="capa-campo"></div>
+  <!-- Animais capa -->
+  <div class="canal" style="bottom:29%;left:12%;animation-duration:4s">🐄</div>
+  <div class="canal" style="bottom:29%;left:22%;animation-duration:5.5s;animation-delay:1s">🐔</div>
+  <div class="canal" style="bottom:29%;right:18%;animation-duration:3.5s;animation-delay:.5s">🐑</div>
+  <div class="canal" style="bottom:29%;right:28%;animation-duration:6s">🐷</div>
+  <!-- Herói -->
+  <div id="chero">👨‍🌾</div>
+  <!-- Logo -->
+  <div id="capa-logo">
+    <span class="capa-titulo">🌱 Colheita</span>
+    <span class="capa-titulo" style="animation-delay:.1s">Vida Nova</span>
+    <div class="capa-sub">PLANTE · COLHA · VENÇA</div>
+    <div class="capa-badge">🌾 JOGO DE FAZENDA</div>
+  </div>
+  <!-- Botão -->
+  <button id="capa-btn" onclick="try{entrarJogo()}catch(e){document.getElementById('capa').remove()}">🚀 Jogar Agora!</button>
+  <!-- Features -->
+  <div id="capa-feats">
+    <div class="cfeat">🐄 Animais</div>
+    <div class="cfeat">🏪 Mercado</div>
+    <div class="cfeat">🏆 250 Níveis</div>
+    <div class="cfeat">📋 30 Missões</div>
+    <div class="cfeat">👫 Amigos</div>
+    <div class="cfeat">💰 Imposto &amp; Roubo</div>
+  </div>
+</div>
+<!-- ===== FIM CAPA ===== -->
+
+<div id="ceu"></div>
+<div id="particulas"></div>
+<div id="notif">✨ Boa!</div>
+<div id="btnsom" onclick="toggleSom()">🔊</div>
+
+<!-- ALERTAS -->
+<div id="alertafome">
+  <div style="font-size:1.4rem" id="afemoji">🐔</div>
+  <div style="color:white;font-weight:900;font-size:.83rem" id="afnome">Animal com FOME!</div>
+  <div style="color:#ffcdd2;font-size:.72rem">Outro jogador pode roubar em</div>
+  <div id="afcount" style="color:#ffd54f;font-family:'Fredoka One',cursive;font-size:1.7rem">60s</div>
+  <div style="font-size:.68rem;color:#ffcdd2">Vá em Animais e alimente!</div>
+</div>
+<div id="alertaimposto">
+  <div style="font-size:1.4rem" id="aiemoji">🏛️</div>
+  <div style="color:white;font-weight:900;font-size:.83rem" id="ainome">Pague o Imposto!</div>
+  <div style="color:#e1bee7;font-size:.72rem" id="aidesc">Sua casa em risco!</div>
+  <div id="aicount" style="color:#ffd54f;font-family:'Fredoka One',cursive;font-size:1.7rem">60s</div>
+  <button onclick="pagarImposto()" style="background:linear-gradient(135deg,#ffd54f,#ff9800);border:none;border-radius:9px;padding:7px 15px;font-weight:900;cursor:pointer;font-family:'Nunito',sans-serif;margin-top:4px;font-size:.78rem;color:#1a1a2e;" id="aibtnpagar">Pagar</button>
+</div>
+
+<!-- MODAL PLANTAR -->
+<div id="modal">
+  <div id="modalbox">
+    <div id="modaltitulo">🌱 O que plantar?</div>
+    <div class="gmodal" id="opcoresplantar"></div>
+    <button class="btnfecharm" onclick="fecharModal()">✕ Cancelar</button>
+  </div>
+</div>
+
+<!-- MODAL VISITA -->
+<div id="mvisita">
+  <div id="visitabox">
+    <h3 id="visitanome" style="font-family:'Fredoka One',cursive;color:#29b6f6;font-size:1.2rem;margin-bottom:8px;">🌾 Fazenda</h3>
+    <p id="visitadesc" style="color:rgba(255,255,255,.5);font-size:.76rem;"></p>
+    <div id="visitafazenda"></div>
+    <button onclick="fecharVisita()" style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:11px;padding:9px 18px;color:white;cursor:pointer;font-weight:700;font-family:'Nunito',sans-serif;width:100%;margin-top:4px;">Voltar 🏠</button>
+  </div>
+</div>
+
+<div id="app">
+  <!-- TOPO -->
+  <div id="topo">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div class="titulo">🌱 Colheita Vida Nova</div>
+      <div style="font-size:.68rem;color:rgba(255,255,255,.5);font-weight:700" id="climabadge">☀️ Ensolarado</div>
+    </div>
+    <div class="stats">
+      <div class="pill" id="pillmoedas"><span class="moeda moeda-sm" style="margin-right:4px">$</span><span id="moedasn">50</span></div>
+      <div class="pill" id="pillnivel">⭐ Nv<span id="niveln">1</span></div>
+      <div class="pill" id="pillclima">☀️ <span id="climan">Ensolarado</span></div>
+    </div>
+  </div>
+  <!-- XP -->
+  <div id="xpbar">
+    <span class="xplabel">Nv<span id="nivellabel">1</span></span>
+    <div class="xptrack"><div class="xpfill" id="xpfill" style="width:0%"><div class="xpshine"></div></div></div>
+    <span class="xplabel"><span id="xpa">0</span>/<span id="xpm">80</span>XP</span>
+  </div>
+  <!-- ABAS -->
+  <div id="abas">
+    <div class="aba ativa" onclick="aba('fazenda',this)"><span>🌾</span>Fazenda</div>
+    <div class="aba" onclick="aba('loja',this)"><span>🏪</span>Loja</div>
+    <div class="aba" onclick="aba('casa',this)"><span>🏠</span>Casa</div>
+    <div class="aba" onclick="aba('amigos',this)"><span>👫</span>Amigos</div>
+    <div class="aba" onclick="aba('mercado',this)"><span>💰</span>Mercado</div>
+    <div class="aba" onclick="aba('animais',this)"><span>🐾</span>Animais</div>
+    <div class="aba" onclick="aba('missoes',this)"><span>📋</span>Missões</div>
+    <div class="aba" onclick="aba('ranking',this)"><span>🏆</span>Ranking</div>
+    <div class="aba" onclick="aba('tutorial',this)"><span>📖</span>Como Jogar</div>
+  </div>
+
+  <!-- ===== FAZENDA ===== -->
+  <div class="tela ativa" id="tela-fazenda">
+    <div class="cenario" id="cenario">
+      <div class="cenario-icones" id="cenicones">
+        <span class="cenario-icone" style="animation-delay:0s">☀️</span>
+        <span class="cenario-icone" style="animation-delay:.5s">🌤️</span>
+        <span class="cenario-icone" style="animation-delay:1s">🌈</span>
+      </div>
+      <p style="color:rgba(255,255,255,.8);font-size:.74rem;font-weight:700;margin-top:5px" id="cenmsg">✨ Toque no terreno para plantar!</p>
+    </div>
+    <div id="pcontainer">
+      <div id="personagem" onclick="personagemFalar()">👨‍🌾</div>
+    </div>
+    <div id="grade"></div>
+    <!-- ANÚNCIO RECOMPENSADO -->
+    <div class="card" style="background:linear-gradient(135deg,rgba(255,213,79,.12),rgba(255,152,0,.12));border-color:rgba(255,213,79,.3);text-align:center;">
+      <h3 style="color:#ffd54f">📺 Ganhar Moedas Grátis!</h3>
+      <p style="font-size:.76rem;color:rgba(255,255,255,.5);margin-bottom:10px">Assista um anúncio rápido e ganhe moedas!</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <button onclick="assistirAnuncio(300,'anuncio1')" class="btnacao" style="display:flex;flex-direction:column;align-items:center;padding:10px;">
+          <span style="font-size:1.5rem">🪙</span>
+          <span style="font-size:.82rem;font-weight:900">+300</span>
+          <span style="font-size:.65rem;opacity:.6">15 segundos</span>
+        </button>
+        <button onclick="assistirAnuncio(800,'anuncio2')" class="btnacao btnok" style="display:flex;flex-direction:column;align-items:center;padding:10px;">
+          <span style="font-size:1.5rem">💰</span>
+          <span style="font-size:.82rem;font-weight:900">+800</span>
+          <span style="font-size:.65rem;opacity:.7">30 segundos</span>
+        </button>
+      </div>
+      <p style="font-size:.65rem;color:rgba(255,255,255,.25);margin-top:8px">⏰ Disponível a cada 5 minutos</p>
+    </div>
+    <div class="card">
+      <h3>🌱 Sementes</h3>
+      <div class="gsementes" id="gsementes"></div>
+    </div>
+  </div>
+
+  <!-- ===== LOJA ===== -->
+  <div class="tela" id="tela-loja">
+    <div class="card" style="background:linear-gradient(135deg,rgba(255,213,79,.1),rgba(255,152,0,.1));border-color:rgba(255,213,79,.2);">
+      <h3><span class="moeda moeda-g" style="margin-right:6px">$</span> Moedas: <span id="moedasloja" style="color:#ffd54f">50</span></h3>
+      <p style="font-size:.76rem;color:rgba(255,255,255,.4)">Compre melhorias para sua fazenda!</p>
+    </div>
+    <div id="listaloja"></div>
+  </div>
+
+  <!-- ===== CASA ===== -->
+  <div class="tela" id="tela-casa">
+    <div id="casacena">
+      <div style="position:absolute;inset:0;background:linear-gradient(180deg,#0d1b4b,#1a237e 40%,#1b5e20 65%,#2e7d32)"></div>
+      <div style="position:absolute;top:12px;left:0;right:0;display:flex;justify-content:center;gap:18px;font-size:1.1rem;">
+        <span style="animation:float 4s ease-in-out infinite">⭐</span>
+        <span style="animation:float 3s ease-in-out infinite 1s">🌙</span>
+        <span style="animation:float 5s ease-in-out infinite .5s">✨</span>
+      </div>
+      <div style="position:absolute;bottom:0;left:0;right:0;text-align:center;">
+        <span id="casasprite">🏚️</span>
+      </div>
+      <div id="semcasamsg" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;color:rgba(255,255,255,.4);font-size:.76rem;font-weight:700;"><div style="font-size:2rem">🏚️</div>Compre uma casa na loja!</div>
+      <div id="interiorcasa" style="display:none;position:absolute;bottom:65px;left:10%;right:10%;background:rgba(255,200,100,.12);border:2px solid rgba(255,200,100,.2);border-radius:13px 13px 0 0;padding:9px;">
+        <div style="font-size:.6rem;color:rgba(255,255,255,.4);font-weight:700;text-align:center;margin-bottom:5px">🏠 Interior</div>
+        <div id="salamoveis" style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;"></div>
+      </div>
+    </div>
+    <div class="card"><h3>🛋️ Seus Móveis</h3><div id="listamoveis"></div></div>
+  </div>
+
+  <!-- ===== AMIGOS ===== -->
+  <div class="tela" id="tela-amigos">
+    <div class="card" style="background:linear-gradient(135deg,rgba(41,182,246,.1),rgba(2,136,209,.1));border-color:rgba(41,182,246,.2);">
+      <h3>👫 Seus Amigos</h3>
+      <p style="font-size:.76rem;color:rgba(255,255,255,.4)">Adicione o apelido dos seus amigos abaixo para visitar a fazenda deles!</p>
+      <button onclick="G.amigos=[];salvar();renderAmigos();notif('🗑️ Lista limpa!');" style="margin-top:8px;background:rgba(244,67,54,.15);border:1px solid rgba(244,67,54,.3);border-radius:8px;padding:6px 12px;color:#ef5350;cursor:pointer;font-size:.72rem;font-family:'Nunito',sans-serif;">🗑️ Limpar lista de amigos</button>
+    </div>
+    <div id="listaamigos">
+      <!-- Amigos aparecem aqui -->
+    </div>
+    <div class="card">
+      <h3>➕ Adicionar Amigo</h3>
+      <div style="display:flex;gap:7px;">
+        <input id="inputamigo" placeholder="Nome do amigo..." style="flex:1;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);border-radius:9px;padding:9px;color:white;font-family:'Nunito',sans-serif;font-size:.83rem;"/>
+        <button onclick="addAmigo()" style="background:linear-gradient(135deg,#29b6f6,#0288d1);border:none;border-radius:9px;padding:9px 13px;color:white;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;">➕</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MERCADO ===== -->
+  <div class="tela" id="tela-mercado">
+    <div class="card" style="background:linear-gradient(135deg,rgba(41,182,246,.1),rgba(2,136,209,.1));border-color:rgba(41,182,246,.2);">
+      <h3>🏪 Mercado Global</h3>
+      <p style="font-size:.76rem;color:rgba(255,255,255,.4)">Compre, venda e conquiste dos outros!</p>
+    </div>
+    <div class="impcard" id="impcard" style="display:none;">
+      <h4>🏛️ Imposto da Casa</h4>
+      <p id="impdesc" style="font-size:.76rem;color:rgba(255,255,255,.6);margin:4px 0"></p>
+      <div class="impbarra"><div class="impfill" id="impfill"></div></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:5px;">
+        <span id="impinfo" style="font-size:.7rem;color:rgba(255,255,255,.4)"></span>
+        <button id="btnpagarimposto" class="btnvender" onclick="pagarImposto()" style="padding:6px 13px;font-size:.74rem;"></button>
+      </div>
+    </div>
+    <div class="card" style="background:linear-gradient(135deg,rgba(255,152,0,.1),rgba(230,81,0,.1));border-color:rgba(255,152,0,.3);">
+      <h3>🔥 Oportunidades!</h3>
+      <div id="listaoport"></div>
+    </div>
+    <div class="card">
+      <h3>📦 Meus Produtos</h3>
+      <div id="meusprodutos"></div>
+    </div>
+    <div class="card" style="margin-top:4px;">
+      <h3>🌍 Mercado dos Jogadores</h3>
+      <div id="listamercado"></div>
+    </div>
+  </div>
+
+  <!-- ===== ANIMAIS ===== -->
+  <div class="tela" id="tela-animais">
+    <div class="card" style="background:linear-gradient(135deg,rgba(121,85,72,.2),rgba(78,52,46,.2));border-color:rgba(121,85,72,.3);">
+      <h3>🐾 Fazenda de Animais</h3>
+      <p style="font-size:.76rem;color:rgba(255,255,255,.4)">Compre, alimente e colete produtos!</p>
+    </div>
+    <div style="background:linear-gradient(180deg,#1a237e,#2e7d32 60%,#4e342e);border-radius:16px;padding:13px;margin-bottom:11px;min-height:110px;border:2px solid rgba(255,255,255,.1);">
+      <div style="text-align:center;font-size:.7rem;color:rgba(255,255,255,.5);font-weight:700;margin-bottom:7px">🌾 CURRAL</div>
+      <div id="curral" style="display:flex;flex-wrap:wrap;justify-content:center;gap:9px;min-height:55px;align-items:center;">
+        <p style="color:rgba(255,255,255,.3);font-size:.76rem">Sem animais!</p>
+      </div>
+    </div>
+    <div class="card"><h3>🐄 Meus Animais</h3><div id="listaanimais"></div></div>
+    <div class="card" style="margin-top:4px;"><h3>🏪 Comprar Animais</h3><div id="listacompraranim"></div></div>
+    <div class="card" style="margin-top:4px;">
+      <h3>🌾 Alimentar</h3>
+      <p style="font-size:.73rem;color:rgba(255,255,255,.4);margin-bottom:9px">Compre ração e alimente seus animais!</p>
+      <div id="listaalimentar"></div>
+    </div>
+  </div>
+
+  <!-- ===== MISSÕES ===== -->
+  <div class="tela" id="tela-missoes">
+    <div class="card" style="background:linear-gradient(135deg,rgba(156,39,176,.15),rgba(103,58,183,.15));border-color:rgba(156,39,176,.3);">
+      <h3>📋 Missões</h3>
+      <p style="font-size:.76rem;color:rgba(255,255,255,.4)">Complete e ganhe recompensas!</p>
+    </div>
+    <div id="listamissoes"></div>
+  </div>
+
+  <!-- ===== RANKING ===== -->
+  <div class="tela" id="tela-ranking">
+    <div class="card" style="background:linear-gradient(135deg,rgba(255,213,79,.1),rgba(255,152,0,.1));border-color:rgba(255,213,79,.2);">
+      <h3>🏆 Ranking Global</h3>
+      <div style="display:flex;align-items:center;gap:6px;margin-top:4px;">
+        <span class="live-dot"></span>
+        <span style="font-size:.74rem;color:#4caf50;font-weight:800">AO VIVO — atualiza em tempo real!</span>
+      </div>
+    </div>
+    <div id="listaranking"></div>
+  </div>
+  <!-- ===== TUTORIAL ===== -->
+  <div class="tela" id="tela-tutorial">
+    <!-- Boas-vindas -->
+    <div class="tut-card" style="background:linear-gradient(135deg,rgba(27,94,32,.9),rgba(13,75,27,.9));border-color:rgba(76,175,80,.4);text-align:center;padding:20px;">
+      <div style="font-size:3.5rem">🌱</div>
+      <h2 style="font-family:'Fredoka One',cursive;color:#ffd54f;font-size:1.4rem;margin:8px 0">Bem-vindo ao<br>Colheita Vida Nova!</h2>
+      <p style="font-size:.8rem;color:rgba(255,255,255,.7);line-height:1.5">Aqui você vai plantar, colher, criar animais e disputar com outros fazendeiros para ser o maior produtor do mundo! 🏆</p>
+    </div>
+
+    <!-- Como começar -->
+    <div class="tut-card">
+      <h3>🚀 Como Começar</h3>
+      <div class="tut-passo">
+        <div class="tut-num">1</div>
+        <div class="tut-texto"><h4>Toque no terreno verde 🌿</h4><p>Na aba Fazenda, toque em qualquer quadrado verde para abrir o menu de sementes e escolher o que plantar.</p></div>
+      </div>
+      <div class="tut-passo">
+        <div class="tut-num">2</div>
+        <div class="tut-texto"><h4>Escolha uma semente <span class="moeda moeda-sm">$</span></h4><p>Cada semente custa moedas. Sementes baratas crescem rápido. Sementes caras demoram mais mas valem muito!</p></div>
+      </div>
+      <div class="tut-passo">
+        <div class="tut-num">3</div>
+        <div class="tut-texto"><h4>Aguarde crescer ⏳</h4><p>A planta vai crescer sozinha! Quando piscar e ficar pulando, está pronta. Toque nela para colher!</p></div>
+      </div>
+      <div class="tut-passo">
+        <div class="tut-num">4</div>
+        <div class="tut-texto"><h4>Colha e ganhe moedas <span class="moeda moeda-sm">$</span></h4><p>Cada colheita dá moedas e XP. Com XP você sobe de nível e desbloqueia plantas e animais novos!</p></div>
+      </div>
+    </div>
+
+    <!-- Símbolo da moeda -->
+    <div class="tut-card" style="border-color:rgba(255,213,79,.4);">
+      <h3>💰 O Dinheiro do Jogo</h3>
+      <div style="display:flex;align-items:center;gap:14px;background:rgba(255,255,255,.06);border-radius:13px;padding:13px;margin-bottom:10px;">
+        <div style="width:50px;height:50px;background:linear-gradient(135deg,#ffd700,#ff9800);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.6rem;font-weight:900;color:#7b4f00;border:3px solid #ff9800;box-shadow:0 4px 15px rgba(255,152,0,.6);flex-shrink:0;">$</div>
+        <div><div style="font-weight:900;color:#ffd54f;font-size:.95rem">Moeda da Fazenda</div><p style="font-size:.75rem;color:rgba(255,255,255,.5);margin-top:3px">Esse é o símbolo da sua moeda! Você ganha moedas colhendo plantas, vendendo produtos animais e completando missões.</p></div>
+      </div>
+      <div class="tut-dica">💡 Dica: Plante sempre que tiver terreno livre! Moedas paradas não crescem — mas plantas sim! 🌱</div>
+    </div>
+
+    <!-- Abas explicadas -->
+    <div class="tut-card">
+      <h3>📱 O que cada aba faz?</h3>
+      <div class="tut-regra"><div class="tut-icon">🌾</div><div class="tut-desc"><h4>Fazenda</h4><p>Plante e colha suas plantas. É aqui que você ganha a maioria das moedas!</p></div></div>
+      <div class="tut-regra"><div class="tut-icon">🏪</div><div class="tut-desc"><h4>Loja</h4><p>Compre mais terrenos, melhorias como Regador Mágico e Fertilizante, casas e móveis.</p></div></div>
+      <div class="tut-regra"><div class="tut-icon">🏠</div><div class="tut-desc"><h4>Casa</h4><p>Veja sua casa e os móveis instalados. Quanto melhor a casa, mais estilo você tem!</p></div></div>
+      <div class="tut-regra"><div class="tut-icon">👫</div><div class="tut-desc"><h4>Amigos</h4><p>Adicione amigos e visite a fazenda deles para ver o que estão plantando.</p></div></div>
+      <div class="tut-regra"><div class="tut-icon">💰</div><div class="tut-desc"><h4>Mercado</h4><p>Venda seus produtos, compre de outros jogadores e aproveite oportunidades de pegar animais abandonados!</p></div></div>
+      <div class="tut-regra"><div class="tut-icon">🐾</div><div class="tut-desc"><h4>Animais</h4><p>Compre animais, alimente com ração e colete ovos, leite, trufa e lã para vender no mercado!</p></div></div>
+      <div class="tut-regra"><div class="tut-icon">📋</div><div class="tut-desc"><h4>Missões</h4><p>Complete desafios e ganhe recompensas em moedas e XP. Tem 30 missões no total!</p></div></div>
+      <div class="tut-regra"><div class="tut-icon">🏆</div><div class="tut-desc"><h4>Ranking</h4><p>Veja sua posição entre todos os fazendeiros do mundo! Chegue ao nível 250 para ser o maior!</p></div></div>
+    </div>
+
+    <!-- Regras importantes -->
+    <div class="tut-card" style="border-color:rgba(244,67,54,.3);">
+      <h3>⚠️ Regras Importantes</h3>
+      <div class="tut-aviso">🏛️ <strong>Imposto da Casa:</strong> Quando comprar uma casa, você tem 1 minuto para pagar o imposto. Não pagou? Sua casa vai a leilão e outro jogador pode comprar!</div>
+      <div class="tut-aviso">🐾 <strong>Animais com Fome:</strong> Se o animal ficar com fome por mais de 1 minuto, outro jogador pode roubá-lo! Sempre deixe ração no estoque!</div>
+      <div class="tut-aviso">💀 <strong>Animal com fome = produz menos:</strong> Animal abaixo de 40% de fome produz só metade das moedas na colheita!</div>
+    </div>
+
+    <!-- Dicas de ouro -->
+    <div class="tut-card" style="border-color:rgba(76,175,80,.3);">
+      <h3>💡 Dicas de Ouro</h3>
+      <div class="tut-dica">🌧️ <strong>Clima:</strong> Na chuva você ganha 30% mais moedas! Aproveite para colher bastante quando estiver chovendo!</div>
+      <div class="tut-dica">💧 <strong>Regador Mágico:</strong> Compre na loja — as plantas crescem 2x mais rápido! Vale cada moeda!</div>
+      <div class="tut-dica">✨ <strong>Fertilizante Gold:</strong> +50% de moedas em toda colheita! Compre quando tiver moedas sobrando!</div>
+      <div class="tut-dica">📦 <strong>Mercado:</strong> Em vez de vender na hora, guarde produtos no estoque e venda no Mercado por 20-30% a mais!</div>
+      <div class="tut-dica">🎯 <strong>Missões:</strong> Sempre olhe as missões! Elas dão muitas moedas e XP de graça — só precisa completar!</div>
+      <div class="tut-dica">🍐 <strong>Pêra Dourada (Nível 30):</strong> A planta mais valiosa! Vale 12.000 moedas mas demora 8 horas. Plante antes de dormir!</div>
+    </div>
+
+    <!-- Progressão -->
+    <div class="tut-card">
+      <h3>📈 Como Progredir Rápido</h3>
+      <div class="tut-passo">
+        <div class="tut-num">1</div>
+        <div class="tut-texto"><h4>Níveis 1-10: Cenoura e Milho</h4><p>Plante sempre! São rápidas e baratas. Foque em completar as primeiras missões.</p></div>
+      </div>
+      <div class="tut-passo">
+        <div class="tut-num">2</div>
+        <div class="tut-texto"><h4>Níveis 10-20: Compre animais</h4><p>Galinha e Vaca produzem passivamente. Enquanto você dorme elas trabalham!</p></div>
+      </div>
+      <div class="tut-passo">
+        <div class="tut-num">3</div>
+        <div class="tut-texto"><h4>Níveis 20+: Frutas premium</h4><p>Banana, Melancia e Abacate valem muito mais. Invista nelas para acumular moedas rápido!</p></div>
+      </div>
+      <div class="tut-passo">
+        <div class="tut-num">4</div>
+        <div class="tut-texto"><h4>Use o Mercado!</h4><p>Venda seus produtos no Mercado em vez de só colher. Você ganha até 30% a mais!</p></div>
+      </div>
+    </div>
+
+    <div style="text-align:center;padding:15px;color:rgba(255,255,255,.4);font-size:.78rem;">
+      Boa sorte fazendeiro! 🌱<br>
+      <span style="color:#ffd54f;font-weight:800">Colheita Vida Nova</span> — Plante, Colha, Vença! 🏆
+    </div>
+    <button onclick="document.getElementById('modal-privacidade').style.display='block'" style="width:100%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:12px;padding:12px;color:rgba(255,255,255,.5);font-family:'Nunito',sans-serif;font-size:.8rem;cursor:pointer;margin-top:8px;">📋 Política de Privacidade & Contato</button>
+  </div>
+
+</div>
+
+<script>
+// ===== ÁUDIO =====
+let audioCtx, somAtivo=true, gainMaster=null;
+function initAudio(){
+  if(audioCtx)return;
+  audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+  gainMaster=audioCtx.createGain();
+  gainMaster.gain.value=0.22;
+  gainMaster.connect(audioCtx.destination);
+}
+function tocar(t){
+  if(!somAtivo)return;
+  try{
+    initAudio();
+    const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+    const dest=gainMaster||audioCtx.destination;
+    o.connect(g);g.connect(dest);
+    const n=audioCtx.currentTime;
+    if(t==='plantar'){o.frequency.setValueAtTime(440,n);o.frequency.exponentialRampToValueAtTime(660,n+.15);g.gain.setValueAtTime(.3,n);g.gain.exponentialRampToValueAtTime(.001,n+.3);o.start(n);o.stop(n+.3);}
+    else if(t==='colher'){o.type='sine';[523,659,784].forEach((f,i)=>o.frequency.setValueAtTime(f,n+i*.1));g.gain.setValueAtTime(.4,n);g.gain.exponentialRampToValueAtTime(.001,n+.4);o.start(n);o.stop(n+.5);}
+    else if(t==='comprar'){o.type='triangle';o.frequency.setValueAtTime(800,n);o.frequency.exponentialRampToValueAtTime(1200,n+.1);g.gain.setValueAtTime(.3,n);g.gain.exponentialRampToValueAtTime(.001,n+.2);o.start(n);o.stop(n+.2);}
+    else if(t==='nivel'){o.type='sine';[523,659,784,1047].forEach((f,i)=>o.frequency.setValueAtTime(f,n+i*.12));g.gain.setValueAtTime(.5,n);g.gain.exponentialRampToValueAtTime(.001,n+.6);o.start(n);o.stop(n+.6);}
+    else{o.frequency.setValueAtTime(300,n);g.gain.setValueAtTime(.1,n);g.gain.exponentialRampToValueAtTime(.001,n+.1);o.start(n);o.stop(n+.1);}
+  }catch(e){}
+}
+
+
+// ===== CLIMA =====
+const CLIMAS=[
+  {nome:'Ensolarado',emoji:'☀️',icones:['☀️','🌤️','🌈'],bonus:1.0,ceu:''},
+  {nome:'Nublado',   emoji:'☁️',icones:['☁️','🌥️','⛅'],bonus:.9, ceu:''},
+  {nome:'Chuva',     emoji:'🌧️',icones:['🌧️','⛈️','💧'],bonus:1.3,ceu:'ceu-chuva'},
+  {nome:'Noite',     emoji:'🌙',icones:['🌙','⭐','✨'],bonus:.8, ceu:'ceu-noite'},
+];
+let climaIdx=0;
+let efeitosCeu=[];
+function mudarClima(){
+  climaIdx=Math.floor(Math.random()*CLIMAS.length);
+  const c=CLIMAS[climaIdx];
+  const ceuEl=document.getElementById('ceu');
+  ceuEl.className=c.ceu;
+  document.getElementById('climabadge').textContent=c.emoji+' '+c.nome;
+  document.getElementById('climan').textContent=c.nome;
+  document.getElementById('pillclima').innerHTML=c.emoji+' <span id="climan">'+c.nome+'</span>';
+  const ic=document.getElementById('cenicones');
+  if(ic)ic.innerHTML=c.icones.map((x,i)=>`<span class="cenario-icone" style="animation-delay:${i*.5}s">${x}</span>`).join('');
+  efeitosCeu.forEach(e=>e.remove());efeitosCeu=[];
+  if(c.nome==='Chuva')for(let i=0;i<25;i++){const g=document.createElement('div');g.className='chuva-gota';g.style.cssText=`left:${Math.random()*100}%;height:${10+Math.random()*20}px;animation-duration:${.5+Math.random()*.5}s;animation-delay:${Math.random()}s;`;ceuEl.appendChild(g);efeitosCeu.push(g);}
+  if(c.nome==='Noite')for(let i=0;i<50;i++){const s=document.createElement('div');s.className='estrela';const sz=Math.random()*3+1;s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*50}%;left:${Math.random()*100}%;animation-delay:${Math.random()*3}s;animation-duration:${1+Math.random()*3}s`;ceuEl.appendChild(s);efeitosCeu.push(s);}
+  if(c.bonus!==1)notif(`${c.emoji} ${c.nome}! ${c.bonus>1?'+'+Math.round(c.bonus*100-100)+'% colheita!':'-'+Math.round(100-c.bonus*100)+'% XP'}`);
+}
+
+// ===== PERSONAGEM =====
+let posP=10;
+let tFala;
+const FALAS=['Que dia lindo! 🌱','Vamos colher! 💪','Preciso de moedas! 🪙','Fazenda linda! 🌾','Bora trabalhar! 😤','Olha crescendo! 🌿','Vai ser um bom dia! ☀️'];
+function moverP(x){posP=Math.max(5,Math.min(80,x));const p=document.getElementById('personagem');if(p)p.style.left=posP+'%';}
+function personagemFalar(msg){
+  const p=document.getElementById('personagem');if(!p)return;
+  const m=msg||FALAS[Math.floor(Math.random()*FALAS.length)];
+  document.querySelectorAll('.fala').forEach(e=>e.remove());
+  const b=document.createElement('div');b.className='fala';b.textContent=m;
+  b.style.left=Math.max(0,posP-10)+'%';
+  document.getElementById('pcontainer').appendChild(b);
+  clearTimeout(tFala);tFala=setTimeout(()=>b.remove(),3000);
+  tocar('click');
+}
+function pReagir(a){
+  const r={plantar:['Plantando! 🌱','Vai crescer!'],colher:['COLHEI! 🎉','RIQUEZA! 💰'],comprar:['Compra boa!','Investimento!'],nivel:['SUBI DE NÍVEL!! 🎊','Evoluindo!']};
+  personagemFalar((r[a]||FALAS)[Math.floor(Math.random()*(r[a]||FALAS).length)]);
+  moverP(Math.random()*60+10);
+}
+
+// ===== DADOS =====
+const SEMENTES=[
+  {id:0, nome:'Cenoura',     emoji:'🥕',tempo:15,    preco:5,    venda:15,   xp:10,  nivel:1},
+  {id:1, nome:'Milho',       emoji:'🌽',tempo:30,    preco:10,   venda:30,   xp:20,  nivel:1},
+  {id:2, nome:'Tomate',      emoji:'🍅',tempo:60,    preco:20,   venda:65,   xp:35,  nivel:2},
+  {id:3, nome:'Morango',     emoji:'🍓',tempo:120,   preco:35,   venda:110,  xp:60,  nivel:3},
+  {id:4, nome:'Abacaxi',     emoji:'🍍',tempo:300,   preco:60,   venda:200,  xp:100, nivel:5},
+  {id:5, nome:'Uva',         emoji:'🍇',tempo:600,   preco:100,  venda:350,  xp:180, nivel:8},
+  {id:6, nome:'Banana',      emoji:'🍌',tempo:900,   preco:150,  venda:520,  xp:250, nivel:10},
+  {id:7, nome:'Melancia',    emoji:'🍉',tempo:1800,  preco:250,  venda:950,  xp:400, nivel:13},
+  {id:8, nome:'Abacate',     emoji:'🥑',tempo:3600,  preco:400,  venda:1800, xp:700, nivel:16},
+  {id:9, nome:'Manga',       emoji:'🥭',tempo:7200,  preco:600,  venda:3200, xp:1100,nivel:20},
+  {id:10,nome:'Coco',        emoji:'🥥',tempo:14400, preco:1000, venda:6000, xp:2000,nivel:25},
+  {id:11,nome:'Pêra Dourada',emoji:'🍐',tempo:28800, preco:2000, venda:12000,xp:4000,nivel:30},
+];
+const LOJA_ITENS=[
+  {id:'p1',nome:'Terreno 1', desc:'Desbloqueia 2 parcelas',      emoji:'🌿',preco:100,  tipo:'parcela'},
+  {id:'p2',nome:'Terreno 2', desc:'Mais 2 parcelas novas',        emoji:'🌿',preco:250,  tipo:'parcela'},
+  {id:'p3',nome:'Terreno 3', desc:'Mais 2 parcelas novas',        emoji:'🌱',preco:500,  tipo:'parcela'},
+  {id:'p4',nome:'Terreno 4', desc:'Mais 2 parcelas novas',        emoji:'🌱',preco:1000, tipo:'parcela'},
+  {id:'p5',nome:'Terreno 5', desc:'Últimas 2 parcelas!',          emoji:'🏆',preco:2000, tipo:'parcela'},
+  {id:'p6',nome:'🔓 Desbloquear Tudo', desc:'Force abrir TODOS os terrenos',emoji:'🔓',preco:0,    tipo:'parcela'},
+  {id:'regador',nome:'Regador Mágico',  desc:'Plantas crescem 2x mais rápido!',emoji:'💧',preco:300,tipo:'buff'},
+  {id:'fertilizante',nome:'Fertilizante Gold',desc:'+50% moedas na colheita!',emoji:'✨',preco:500,tipo:'buff'},
+  {id:'casa1',nome:'Casa de Madeira',   desc:'Uma casinha aconchegante',      emoji:'🏠',preco:200, tipo:'casa',casaId:1},
+  {id:'casa2',nome:'Casa de Tijolos',   desc:'Sólida e bonita!',              emoji:'🏡',preco:800, tipo:'casa',casaId:2},
+  {id:'casa3',nome:'Mansão',            desc:'A casa dos seus sonhos!',       emoji:'🏰',preco:3000,tipo:'casa',casaId:3},
+];
+const MOVEIS_ITENS=[
+  {id:'sofa', nome:'Sofá',    emoji:'🛋️',preco:150},
+  {id:'tv',   nome:'TV',      emoji:'📺',preco:200},
+  {id:'cama', nome:'Cama',    emoji:'🛏️',preco:180},
+  {id:'mesa', nome:'Mesa',    emoji:'🪑',preco:120},
+  {id:'planta',nome:'Vaso',   emoji:'🪴',preco:80},
+  {id:'livro',nome:'Estante', emoji:'📚',preco:160},
+];
+const ANIMAIS_ITENS=[
+  {id:'galinha',nome:'Galinha',emoji:'🐔',preco:200,nivel:1,produto:'🥚',nomeProd:'Ovo',    vendaProd:25, tempoColeta:60, comida:'🌽',nomeComida:'Milho'},
+  {id:'vaca',   nome:'Vaca',   emoji:'🐄',preco:500,nivel:3,produto:'🥛',nomeProd:'Leite',  vendaProd:80, tempoColeta:180,comida:'🌾',nomeComida:'Feno'},
+  {id:'porco',  nome:'Porco',  emoji:'🐷',preco:800,nivel:5,produto:'🍄',nomeProd:'Trufa',  vendaProd:150,tempoColeta:300,comida:'🥕',nomeComida:'Cenoura'},
+  {id:'ovelha', nome:'Ovelha', emoji:'🐑',preco:600,nivel:4,produto:'🧶',nomeProd:'Lã',     vendaProd:100,tempoColeta:240,comida:'🌾',nomeComida:'Feno'},
+];
+const RACOES_ITENS=[
+  {id:'feno',    nome:'Feno',    emoji:'🌾',preco:15,animais:['vaca','ovelha']},
+  {id:'milho_r', nome:'Milho',   emoji:'🌽',preco:10,animais:['galinha']},
+  {id:'cenoura_r',nome:'Cenoura',emoji:'🥕',preco:5, animais:['porco']},
+];
+const MISSOES_DEF=[
+  {id:'m1', nome:'Primeiro Plantio',     desc:'Plante 3 sementes',       emoji:'🌱',meta:3,     tipo:'plantar',recomp:50,    xpR:30},
+  {id:'m2', nome:'Colheita do Dia',      desc:'Colha 5 plantas',          emoji:'🧺',meta:5,     tipo:'colher', recomp:100,   xpR:50},
+  {id:'m3', nome:'Primeiras Moedas',     desc:'Acumule 200 moedas',       emoji:'💰',meta:200,   tipo:'moedas', recomp:150,   xpR:80},
+  {id:'m4', nome:'Subindo de Nível',     desc:'Chegue ao nível 3',        emoji:'⭐',meta:3,     tipo:'nivel',  recomp:200,   xpR:100},
+  {id:'m5', nome:'Plantador Iniciante',  desc:'Plante 10 sementes',       emoji:'🌿',meta:10,    tipo:'plantar',recomp:200,   xpR:120},
+  {id:'m6', nome:'Grande Colheita',      desc:'Colha 20 plantas',         emoji:'🌾',meta:20,    tipo:'colher', recomp:300,   xpR:150},
+  {id:'m7', nome:'Economizando',         desc:'Acumule 1.000 moedas',     emoji:'🤑',meta:1000,  tipo:'moedas', recomp:500,   xpR:200},
+  {id:'m8', nome:'Crescendo',            desc:'Chegue ao nível 8',        emoji:'📈',meta:8,     tipo:'nivel',  recomp:600,   xpR:250},
+  {id:'m9', nome:'Plantador Dedicado',   desc:'Plante 30 sementes',       emoji:'🌻',meta:30,    tipo:'plantar',recomp:500,   xpR:220},
+  {id:'m10',nome:'Colheita Farta',       desc:'Colha 50 plantas',         emoji:'🎯',meta:50,    tipo:'colher', recomp:700,   xpR:300},
+  {id:'m11',nome:'Nível 10',             desc:'Chegue ao nível 10',       emoji:'🏅',meta:10,    tipo:'nivel',  recomp:1000,  xpR:400},
+  {id:'m12',nome:'Rico da Roça',         desc:'Acumule 5.000 moedas',     emoji:'💎',meta:5000,  tipo:'moedas', recomp:1500,  xpR:500},
+  {id:'m13',nome:'Plantador Épico',      desc:'Plante 75 sementes',       emoji:'🌳',meta:75,    tipo:'plantar',recomp:1200,  xpR:450},
+  {id:'m14',nome:'Super Colheita',       desc:'Colha 100 plantas',        emoji:'🚜',meta:100,   tipo:'colher', recomp:2000,  xpR:700},
+  {id:'m15',nome:'Nível 15',             desc:'Chegue ao nível 15',       emoji:'🌟',meta:15,    tipo:'nivel',  recomp:2500,  xpR:900},
+  {id:'m16',nome:'Fortuna Verde',        desc:'Acumule 20.000 moedas',    emoji:'🏦',meta:20000, tipo:'moedas', recomp:5000,  xpR:1500},
+  {id:'m17',nome:'Plantador Lendário',   desc:'Plante 150 sementes',      emoji:'🌴',meta:150,   tipo:'plantar',recomp:4000,  xpR:1200},
+  {id:'m18',nome:'Colheita Lendária',    desc:'Colha 200 plantas',        emoji:'👨‍🌾',meta:200, tipo:'colher', recomp:6000,  xpR:2000},
+  {id:'m19',nome:'Nível 20',             desc:'Chegue ao nível 20',       emoji:'🏆',meta:20,    tipo:'nivel',  recomp:8000,  xpR:3000},
+  {id:'m20',nome:'Magnata Rural',        desc:'Acumule 50.000 moedas',    emoji:'💍',meta:50000, tipo:'moedas', recomp:12000, xpR:4000},
+  {id:'m21',nome:'Mestre Plantador',     desc:'Plante 300 sementes',      emoji:'🎋',meta:300,   tipo:'plantar',recomp:10000, xpR:4000},
+  {id:'m22',nome:'Colheita Monstruosa',  desc:'Colha 500 plantas',        emoji:'🌊',meta:500,   tipo:'colher', recomp:20000, xpR:7000},
+  {id:'m23',nome:'Nível 30',             desc:'Chegue ao nível 30',       emoji:'👑',meta:30,    tipo:'nivel',  recomp:25000, xpR:10000},
+  {id:'m24',nome:'Multimilionário',      desc:'Acumule 200.000 moedas',   emoji:'🏰',meta:200000,tipo:'moedas', recomp:50000, xpR:15000},
+  {id:'m25',nome:'Plantador Infinito',   desc:'Plante 500 sementes',      emoji:'🌐',meta:500,   tipo:'plantar',recomp:40000, xpR:12000},
+  {id:'m26',nome:'Colheita Épica',       desc:'Colha 1000 plantas',       emoji:'🔥',meta:1000,  tipo:'colher', recomp:80000, xpR:30000},
+  {id:'m27',nome:'Nível 50',             desc:'Chegue ao nível 50',       emoji:'💫',meta:50,    tipo:'nivel',  recomp:100000,xpR:50000},
+  {id:'m28',nome:'Bilionário Rural',     desc:'Acumule 1.000.000 moedas', emoji:'🌌',meta:1000000,tipo:'moedas',recomp:200000,xpR:80000},
+  {id:'m29',nome:'Plantador Divino',     desc:'Plante 1000 sementes',     emoji:'⚡',meta:1000,  tipo:'plantar',recomp:150000,xpR:60000},
+  {id:'m30',nome:'Lenda Absoluta - Nv100',desc:'Chegue ao nível 100',     emoji:'🌠',meta:100,   tipo:'nivel',  recomp:500000,xpR:200000},
+];
+const RANKING_FAKE=[
+  {nome:'👑 Mestre Agrícola',     nivel:50, moedas:980000},
+  {nome:'💎 Rainha da Colheita', nivel:45, moedas:720000},
+  {nome:'🌟 Fazendeiro Lendário',nivel:40, moedas:520000},
+  {nome:'🔥 João Milionário',    nivel:35, moedas:310000},
+  {nome:'🌾 Ana Produtora',      nivel:30, moedas:185000},
+  {nome:'🏆 Pedro Campeão',      nivel:28, moedas:120000},
+  {nome:'🥇 Maria Colhedora',    nivel:25, moedas:85000},
+  {nome:'⭐ Carlos Fazendeiro',  nivel:22, moedas:52000},
+  {nome:'🌱 Lucia Plantadora',   nivel:18, moedas:28000},
+  {nome:'🍀 Bruno da Terra',     nivel:15, moedas:14000},
+];
+const AMIGOS_BASE=[];
+const CASAS=['🏚️','🏠','🏡','🏰'];
+const PRODUTOS_FAKE=[
+  {vendedor:'👩‍🌾 Maria', produto:'🥚',nome:'Ovos',   qtd:5, preco:120},
+  {vendedor:'👨‍🌾 João',  produto:'🥛',nome:'Leite',  qtd:3, preco:250},
+  {vendedor:'👩 Ana',    produto:'🍌',nome:'Banana', qtd:8, preco:400},
+  {vendedor:'🧑 Carlos', produto:'🍅',nome:'Tomate', qtd:12,preco:55},
+  {vendedor:'👩‍🌾 Maria', produto:'🧶',nome:'Lã',     qtd:2, preco:320},
+  {vendedor:'👨‍🌾 João',  produto:'🍓',nome:'Morango',qtd:6, preco:95},
+];
+const JOG_OPORT=[
+  {nome:'Maria Silva',avatar:'👩‍🌾',nivel:18,animal:'galinha',fome:5, moedas:8500},
+  {nome:'João Santos',avatar:'👨‍🌾',nivel:12,animal:'vaca',   fome:10,moedas:3200},
+];
+
+// ===== SAVE =====
+let G={};
+function novoJogo(){
+  return{
+    moedas:50,xp:0,nivel:1,xpMax:80,apelido:'',uid:'',
+    terreno:Array(16).fill(null).map((_,i)=>({id:i,estado:i<4?'vazio':'bloqueado',plantaId:null,em:null})),
+    compras:[],moveis:[],casaTipo:0,amigos:[],animais:[],racoes:{},estoque:{},
+    missoes:MISSOES_DEF.map(m=>({...m,prog:0,coletada:false})),
+    imposto:{valor:0,prazo:0,pago:true},
+    selecionada:0,
+  };
+}
+function salvar(){
+  // Garantir que apelido e uid estão no G antes de salvar
+  if(!G.apelido){const a=localStorage.getItem('cvn4_apelido');if(a)G.apelido=a;}
+  if(!G.uid){const u=localStorage.getItem('cvn4_uid');if(u)G.uid=u;}
+  localStorage.setItem('cvn4',JSON.stringify(G));
+  salvarNoFirebase();
+}
+function init(){
+  try{G=JSON.parse(localStorage.getItem('cvn4'))||novoJogo();}catch(e){G=novoJogo();}
+  // Restaurar apelido e uid do localStorage
+  if(!G.apelido){const a=localStorage.getItem('cvn4_apelido');if(a)G.apelido=a;}
+  if(!G.uid){const u=localStorage.getItem('cvn4_uid');if(u)G.uid=u;}
+  if(!G.amigos)G.amigos=[];
+  // Limpar todos amigos salvos antigos - lista começa do zero
+  if(!localStorage.getItem('cvn4_amigos_limpos')){
+    G.amigos=[];
+    localStorage.setItem('cvn4_amigos_limpos','1');
+  }
+  if(!G.animais)G.animais=[];
+  if(!G.racoes)G.racoes={};
+  if(!G.estoque)G.estoque={};
+  if(!G.imposto)G.imposto={valor:0,prazo:0,pago:true};
+  // Garante todas as missões definidas
+  G.missoes=MISSOES_DEF.map(def=>{
+    const s=G.missoes?G.missoes.find(m=>m.id===def.id):null;
+    return s?{...def,prog:s.prog||0,coletada:s.coletada||false}:{...def,prog:0,coletada:false};
+  });
+  mudarClima();
+  renderAll();
+  setInterval(tick,1000);
+  setInterval(tickAnimais,1000);
+  setInterval(tickImposto,3000);
+  setInterval(salvar,5000);
+  setInterval(mudarClima,120000);
+  setTimeout(()=>personagemFalar('Bem-vindo à sua fazenda! 🌾'),1500);
+  setInterval(()=>{if(Math.random()>.7)personagemFalar();},15000);
+}
+
+// ===== RENDERS =====
+function renderAll(){renderTopo();renderTerreno();renderSementes();renderLoja();renderCasa();renderAmigos();renderMercado();renderAnimais();renderMissoes();renderRanking();}
+
+function renderTopo(){
+  document.getElementById('moedasn').textContent=G.moedas;
+  document.getElementById('niveln').textContent=G.nivel;
+  document.getElementById('nivellabel').textContent=G.nivel;
+  document.getElementById('xpa').textContent=G.xp;
+  document.getElementById('xpm').textContent=G.xpMax;
+  document.getElementById('moedasloja').textContent=G.moedas;
+  document.getElementById('xpfill').style.width=Math.min(G.xp/G.xpMax*100,100)+'%';
+}
+
+function renderTerreno(){
+  const g=document.getElementById('grade');g.innerHTML='';
+  G.terreno.forEach((p,i)=>{
+    const d=document.createElement('div');d.className='parcela ';
+    if(p.estado==='bloqueado'){
+      d.className+='p-bloqueada';
+      d.innerHTML='<span class="pemoji">🔒</span>';
+      d.onclick=()=>{notif('🔒 Desbloqueie na loja!');tocar('click');};
+    }else if(p.estado==='vazio'){
+      d.className+='p-vazia';
+      d.innerHTML='<span class="pemoji">🌿</span><span class="ptempo">Plantar</span>';
+      d.onclick=()=>{abrirModal(i);moverP(15+i*4);};
+    }else if(p.estado==='crescendo'){
+      const s=SEMENTES[p.plantaId];
+      const vel=G.compras.includes('regador')?2:1;
+      const rest=Math.max(0,Math.ceil(s.tempo/vel-(Date.now()-p.em)/1000));
+      d.className+='p-crescendo';
+      d.innerHTML=`<span class="pemoji">${s.emoji}</span><span class="ptempo">${fmt(rest)}</span>`;
+      d.onclick=()=>{notif(`⏳ ${s.nome} em ${fmt(rest)}...`);tocar('click');};
+    }else{
+      const s=SEMENTES[p.plantaId];
+      d.className+='p-pronta';
+      d.innerHTML=`<span class="pemoji">${s.emoji}</span><span class="pbadge">COLHER!</span>`;
+      d.onclick=()=>colher(i);
+    }
+    g.appendChild(d);
+  });
+}
+
+function renderSementes(){
+  const g=document.getElementById('gsementes');g.innerHTML='';
+  SEMENTES.forEach(s=>{
+    const lock=G.nivel<s.nivel,sel=G.selecionada===s.id;
+    const d=document.createElement('div');d.className='bsemente'+(sel?' sel':'');
+    d.style.opacity=lock?'.4':'1';
+    d.innerHTML=`<span class="semoji">${lock?'🔒':s.emoji}</span><span class="snome">${s.nome}</span><span class="sinfo">⏱${fmt(s.tempo)} 💰${s.venda}</span><span class="spreco">${lock?'Nv'+s.nivel:s.preco+'🪙'}</span>`;
+    if(!lock)d.onclick=()=>{G.selecionada=s.id;renderSementes();notif(`${s.emoji} ${s.nome} selecionada!`);tocar('click');};
+    g.appendChild(d);
+  });
+}
+
+function renderLoja(){
+  const l=document.getElementById('listaloja');l.innerHTML='';
+  LOJA_ITENS.forEach(item=>{
+    const ok=G.compras.includes(item.id);
+    const d=document.createElement('div');d.className='item';
+    d.innerHTML=`<div class="iemoji">${item.emoji}</div><div class="iinfo"><h4>${item.nome}</h4><p>${item.desc}</p></div><button class="btnacao ${ok?'btnok':''}" ${ok?'disabled':''} onclick="comprar('${item.id}',${item.preco},'${item.tipo}',${item.casaId||0})">${ok?'✅':'🪙'+item.preco}</button>`;
+    l.appendChild(d);
+  });
+  const t=document.createElement('div');t.className='card';t.style.marginTop='11px';
+  t.innerHTML='<h3>🛋️ Móveis para Casa</h3>';l.appendChild(t);
+  MOVEIS_ITENS.forEach(m=>{
+    const ok=G.moveis.includes(m.id);
+    const d=document.createElement('div');d.className='item';
+    d.innerHTML=`<div class="iemoji">${m.emoji}</div><div class="iinfo"><h4>${m.nome}</h4><p>Decoração para sua casa</p></div><button class="btnacao ${ok?'btnok':''}" ${ok?'disabled':''} onclick="comprarMovel('${m.id}',${m.preco})">${ok?'✅':'🪙'+m.preco}</button>`;
+    l.appendChild(d);
+  });
+}
+
+function renderCasa(){
+  document.getElementById('casasprite').textContent=CASAS[G.casaTipo]||'🏚️';
+  const interior=document.getElementById('interiorcasa');
+  const semcasa=document.getElementById('semcasamsg');
+  const sala=document.getElementById('salamoveis');
+  if(G.casaTipo===0){interior.style.display='none';semcasa.style.display='block';}
+  else{
+    semcasa.style.display='none';interior.style.display='block';
+    sala.innerHTML=G.moveis.length?G.moveis.map(id=>{const m=MOVEIS_ITENS.find(x=>x.id===id);return m?`<div style="text-align:center;background:rgba(255,255,255,.08);border-radius:8px;padding:6px 3px;"><span style="font-size:1.5rem;display:block">${m.emoji}</span><span style="font-size:.55rem;color:rgba(255,255,255,.6);font-weight:700">${m.nome}</span></div>`:'';}).join(''):'<p style="color:rgba(255,255,255,.3);font-size:.7rem;text-align:center;grid-column:span 4">Sem móveis!</p>';
+  }
+  const lm=document.getElementById('listamoveis');
+  lm.innerHTML=G.moveis.length?G.moveis.map(id=>{const m=MOVEIS_ITENS.find(x=>x.id===id);return m?`<div style="display:flex;gap:9px;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.06)"><span style="font-size:1.3rem">${m.emoji}</span><span style="font-weight:800;color:#e8f5e9">${m.nome}</span><span style="color:#4caf50;font-size:.76rem;margin-left:auto">✅</span></div>`:''}).join(''):'<p style="color:rgba(255,255,255,.3);text-align:center;padding:9px">Sem móveis ainda!</p>';
+}
+
+function renderAmigos(){
+  const l=document.getElementById('listaamigos');
+  if(!l)return;
+  l.innerHTML='';
+  const todos=[...AMIGOS_BASE,...(G.amigos||[])];
+  todos.forEach(a=>{
+    const d=document.createElement('div');d.className='amigo';
+    d.innerHTML=`<div class="aavatar">${a.avatar}</div><div class="ainfo"><h4>${a.nome}</h4><p>⭐ Nível ${a.nivel} • ${a.online?'🟢 Online':'⚫ Offline'}</p></div><button class="btnvisit" onclick="visitarAmigo('${a.id}','${a.nome}',${a.nivel})">Visitar 🏡</button><button onclick="removerAmigo('${a.id}')" style="background:rgba(244,67,54,.2);border:1px solid rgba(244,67,54,.3);border-radius:8px;padding:5px 8px;color:#ef5350;cursor:pointer;font-size:.7rem;margin-left:4px;">✕</button><div class="online ${a.online?'':'offline'}"></div>`;
+    l.appendChild(d);
+  });
+  // Card para convidar amigos
+  const convite=document.createElement('div');
+  convite.className='card';
+  convite.style.cssText='background:linear-gradient(135deg,rgba(255,213,79,.1),rgba(255,152,0,.1));border-color:rgba(255,213,79,.3);text-align:center;';
+  convite.innerHTML=`<div style="font-size:1.5rem;margin-bottom:6px">🔗</div><div style="font-weight:800;color:#ffd54f;font-size:.9rem;margin-bottom:6px">Convide seus amigos!</div><div style="font-size:.75rem;color:rgba(255,255,255,.5);margin-bottom:10px">Compartilhe o link do jogo e seus amigos aparecerão no ranking!</div><button onclick="compartilharJogo()" style="background:linear-gradient(135deg,#ffd54f,#ff9800);border:none;border-radius:11px;padding:9px 20px;color:#1a1a2e;font-weight:900;font-family:'Nunito',sans-serif;cursor:pointer;font-size:.85rem;">📤 Compartilhar Link</button>`;
+  l.appendChild(convite);
+}
+
+function compartilharJogo(){
+  const url='https://jonisclei.github.io/colheita-vida-nova';
+  const texto='🌱 Estou jogando Colheita Vida Nova! Venha competir comigo no ranking! '+url;
+  if(navigator.share){navigator.share({title:'Colheita Vida Nova',text:texto,url:url});}
+  else{navigator.clipboard.writeText(url).then(()=>notif('🔗 Link copiado! Cole no WhatsApp para seus amigos!'));}
+}
+
+function renderMercado(){
+  // Imposto
+  const ic=document.getElementById('impcard');
+  if(G.casaTipo===0){if(ic)ic.style.display='none';}
+  else{
+    if(ic)ic.style.display='block';
+    const rest=Math.max(0,G.imposto.prazo-Date.now());
+    const pct=Math.min(100,(rest/60000)*100);
+    const cor=pct>50?'#ffd54f':pct>20?'#ff9800':'#f44336';
+    const desc=document.getElementById('impdesc');
+    const fill=document.getElementById('impfill');
+    const info=document.getElementById('impinfo');
+    const btn=document.getElementById('btnpagarimposto');
+    if(G.imposto.pago){
+      if(desc)desc.textContent='✅ Imposto em dia!';
+      if(fill){fill.style.width='100%';fill.style.background='#4caf50';}
+      if(info)info.textContent='Próximo em 1 minuto';
+      if(btn){btn.textContent='✅ Pago';btn.disabled=true;}
+    }else{
+      const seg=Math.ceil(rest/1000);
+      if(desc)desc.textContent=seg>0?'⚠️ Pague o imposto ou perde a casa!':'🚨 Casa no leilão!';
+      if(fill){fill.style.width=pct+'%';fill.style.background=cor;}
+      if(info)info.textContent=seg>0?`Tempo: ${seg}s • 🪙${G.imposto.valor}`:'Casa sendo leiloada!';
+      if(btn){btn.textContent=`Pagar 🪙${G.imposto.valor}`;btn.disabled=false;}
+    }
+  }
+  // Oportunidades
+  const lo=document.getElementById('listaoport');if(!lo)return;lo.innerHTML='';
+  JOG_OPORT.forEach(j=>{
+    const def=ANIMAIS_ITENS.find(a=>a.id===j.animal);if(!def)return;
+    const val=Math.floor(j.moedas*.1);
+    const d=document.createElement('div');d.className='roubocard';
+    d.innerHTML=`<span style="font-size:1.9rem">${def.emoji}</span><div style="flex:1"><div style="font-weight:800;color:#ff8a65;font-size:.82rem">${def.nome} abandonada! <span class="tag-urg">FOME: ${j.fome}s</span></div><div style="font-size:.68rem;color:rgba(255,255,255,.4)">De: ${j.avatar} ${j.nome}</div><div style="font-size:.7rem;color:#ffd54f">Ganhar: ${def.emoji} + 🪙${val}</div></div><button class="btnroubar" onclick="roubarAnimal('${j.nome}','${j.animal}',${val})">Pegar! 🎯</button>`;
+    lo.appendChild(d);
+  });
+  // Casa leilão
+  if(!G.imposto.pago&&G.imposto.prazo-Date.now()<=-60000){
+    const dc=document.createElement('div');dc.className='roubocard';
+    dc.innerHTML=`<span style="font-size:1.9rem">🏡</span><div style="flex:1"><div style="font-weight:800;color:#ff8a65;font-size:.82rem">Casa no leilão! <span class="tag-urg">URGENTE</span></div><div style="font-size:.68rem;color:rgba(255,255,255,.4)">Pedro Silva não pagou</div><div style="font-size:.7rem;color:#ffd54f">Comprar por: 🪙800</div></div><button class="btnroubar" onclick="comprarCasaLeilao(800)">Comprar! 🏠</button>`;
+    lo.appendChild(dc);
+  }
+  if(lo.children.length===0)lo.innerHTML='<p style="color:rgba(255,255,255,.3);font-size:.76rem;text-align:center;padding:9px">Nenhuma oportunidade agora!</p>';
+  // Meus produtos
+  const mp=document.getElementById('meusprodutos');if(!mp)return;mp.innerHTML='';
+  let temP=false;
+  SEMENTES.forEach(s=>{
+    const qtd=G.estoque['f'+s.id]||0;if(qtd===0)return;temP=true;
+    const pv=Math.floor(s.venda*1.2);
+    const d=document.createElement('div');d.className='mitem';
+    d.innerHTML=`<span style="font-size:1.7rem">${s.emoji}</span><div style="flex:1"><div style="font-weight:800;color:#e8f5e9;font-size:.82rem">${s.nome}</div><div class="vendedor">Estoque: ${qtd}</div></div><div style="display:flex;flex-direction:column;gap:3px"><button class="btnvender" onclick="venderP('f${s.id}','${s.emoji}','${s.nome}',${pv})" style="font-size:.7rem;padding:5px 10px">🪙${pv}</button><button class="btnvender" onclick="venderTudo('f${s.id}','${s.emoji}','${s.nome}',${pv},${qtd})" style="font-size:.67rem;padding:4px 8px;background:linear-gradient(135deg,#4caf50,#2e7d32);color:white">Tudo +🪙${pv*qtd}</button></div>`;
+    mp.appendChild(d);
+  });
+  ANIMAIS_ITENS.forEach(a=>{
+    const qtd=G.estoque['a'+a.id]||0;if(qtd===0)return;temP=true;
+    const pv=Math.floor(a.vendaProd*1.3);
+    const d=document.createElement('div');d.className='mitem';
+    d.innerHTML=`<span style="font-size:1.7rem">${a.produto}</span><div style="flex:1"><div style="font-weight:800;color:#e8f5e9;font-size:.82rem">${a.nomeProd}</div><div class="vendedor">Estoque: ${qtd}</div></div><div style="display:flex;flex-direction:column;gap:3px"><button class="btnvender" onclick="venderP('a${a.id}','${a.produto}','${a.nomeProd}',${pv})" style="font-size:.7rem;padding:5px 10px">🪙${pv}</button><button class="btnvender" onclick="venderTudo('a${a.id}','${a.produto}','${a.nomeProd}',${pv},${qtd})" style="font-size:.67rem;padding:4px 8px;background:linear-gradient(135deg,#4caf50,#2e7d32);color:white">Tudo +🪙${pv*qtd}</button></div>`;
+    mp.appendChild(d);
+  });
+  if(!temP)mp.innerHTML='<p style="color:rgba(255,255,255,.3);font-size:.76rem;text-align:center;padding:9px">Sem produtos! Plante e colha primeiro 🌱</p>';
+  // Mercado geral
+  const lm=document.getElementById('listamercado');if(!lm)return;lm.innerHTML='';
+  PRODUTOS_FAKE.forEach(p=>{
+    const d=document.createElement('div');d.className='mitem';
+    d.innerHTML=`<span style="font-size:1.7rem">${p.produto}</span><div style="flex:1"><div style="font-weight:800;color:#e8f5e9;font-size:.82rem">${p.nome}</div><div class="vendedor">${p.vendedor} • Qtd: ${p.qtd}</div></div><button class="btncompram" onclick="comprarMercado('${p.produto}','${p.nome}',${p.preco},'${p.vendedor}')">🪙${p.preco}</button>`;
+    lm.appendChild(d);
+  });
+}
+
+function renderAnimais(){
+  const curral=document.getElementById('curral');
+  curral.innerHTML=G.animais.length?G.animais.map(a=>{const def=ANIMAIS_ITENS.find(x=>x.id===a.tipo);return def?`<span style="font-size:2.1rem;animation:idle 2s ease-in-out infinite;cursor:pointer" title="${def.nome}">${def.emoji}</span>`:''}).join(''):'<p style="color:rgba(255,255,255,.3);font-size:.76rem">Sem animais!</p>';
+  const la=document.getElementById('listaanimais');la.innerHTML='';
+  if(G.animais.length===0){la.innerHTML='<p style="color:rgba(255,255,255,.3);text-align:center;padding:9px">Compre seu primeiro animal! 🐾</p>';}
+  else G.animais.forEach((a,i)=>{
+    const def=ANIMAIS_ITENS.find(x=>x.id===a.tipo);if(!def)return;
+    const fome=Math.max(0,Math.min(100,a.fome||100));
+    const cor=fome>60?'#4caf50':fome>30?'#ffd54f':'#f44336';
+    const podeColher=a.pronto&&!a.coletado;
+    const d=document.createElement('div');d.className='animalcard';
+    d.innerHTML=`<div style="display:flex;align-items:center;gap:9px;margin-bottom:7px"><span class="animalsprite">${def.emoji}</span><div style="flex:1"><div style="font-weight:800;color:#e8f5e9;font-size:.86rem">${def.nome} ${fome>40?'😊':'😢'}</div><div style="font-size:.7rem;color:${fome>40?'#4caf50':'#f44336'}">${fome>40?'Feliz!':'Com fome! Alimente!'}</div><div style="font-size:.66rem;color:rgba(255,255,255,.4)">🍽️ Fome: ${fome}%</div><div class="fomebar"><div class="fomefill" style="width:${fome}%;background:${cor}"></div></div></div></div><button class="btncolanimal" ${!podeColher?'disabled':''} onclick="coletarAnimal(${i})">${podeColher?`Coletar ${def.produto} +🪙${def.vendaProd}`:a.coletado?`⏳ Próxima coleta em ${fmt(Math.max(0,Math.ceil((a.proximaColeta-Date.now())/1000)))}`:'⏳ Aguardando...'}</button>`;
+    la.appendChild(d);
+  });
+  // Loja animais
+  const lca=document.getElementById('listacompraranim');lca.innerHTML='';
+  ANIMAIS_ITENS.forEach(a=>{
+    const lock=G.nivel<a.nivel;
+    const d=document.createElement('div');d.className='item';
+    d.innerHTML=`<div class="iemoji">${a.emoji}</div><div class="iinfo"><h4>${a.nome} ${lock?'🔒':''}</h4><p>${a.produto} ${a.nomeProd} • Come: ${a.comida} ${a.nomeComida}</p></div><button class="btnacao" ${lock?'disabled':''} onclick="comprarAnimal('${a.id}')">${lock?'Nv'+a.nivel:'🪙'+a.preco}</button>`;
+    lca.appendChild(d);
+  });
+  // Ração
+  const lal=document.getElementById('listaalimentar');lal.innerHTML='';
+  if(G.animais.length===0){lal.innerHTML='<p style="color:rgba(255,255,255,.3);font-size:.76rem;text-align:center">Compre animais primeiro!</p>';return;}
+  RACOES_ITENS.forEach(r=>{
+    const qtd=G.racoes[r.id]||0;
+    const d=document.createElement('div');d.className='item';
+    d.innerHTML=`<div class="iemoji">${r.emoji}</div><div class="iinfo"><h4>${r.nome}</h4><p>Estoque: ${qtd} • Para: ${r.animais.map(id=>ANIMAIS_ITENS.find(a=>a.id===id)?.nome).join(', ')}</p></div><div style="display:flex;flex-direction:column;gap:3px;margin-left:auto"><button class="btnacao" onclick="comprarRacao('${r.id}',${r.preco})" style="font-size:.7rem;padding:5px 9px">+5 🪙${r.preco}</button><button class="btnacao" onclick="alimentar('${r.id}')" style="font-size:.7rem;padding:5px 9px;background:linear-gradient(135deg,#4caf50,#2e7d32);color:white" ${qtd===0?'disabled':''}>Alimentar</button></div>`;
+    lal.appendChild(d);
+  });
+}
+
+function renderMissoes(){
+  const l=document.getElementById('listamissoes');
+  if(!l){console.log('listamissoes não encontrado!');return;}
+  l.innerHTML='';
+  // Atualiza prog moedas e nivel
+  G.missoes.forEach(m=>{
+    if(m.tipo==='moedas')m.prog=G.moedas;
+    if(m.tipo==='nivel')m.prog=G.nivel;
+  });
+  // Ordena: pendentes primeiro, depois coletadas
+  const ativas=G.missoes.filter(m=>!m.coletada).sort((a,b)=>(b.prog/b.meta)-(a.prog/a.meta));
+  const coletadas=G.missoes.filter(m=>m.coletada);
+  [...ativas,...coletadas].forEach(m=>{
+    const pct=Math.min(m.prog/m.meta*100,100);
+    const ok=m.prog>=m.meta;
+    const d=document.createElement('div');
+    d.className='missao'+(ok&&!m.coletada?' completa':m.coletada?' coletada':'');
+    d.innerHTML=`<div style="font-size:1.7rem">${m.emoji}</div><div style="flex:1"><div style="font-weight:800;color:#e8f5e9;font-size:.82rem">${m.nome}</div><div style="font-size:.68rem;color:rgba(255,255,255,.4)">${m.desc} (${Math.min(Math.round(m.prog),m.meta)}/${m.meta})</div><div class="missaobarra"><div class="missaofill" style="width:${pct}%"></div></div></div>${ok&&!m.coletada?`<button class="btncolet" onclick="coletarMissao('${m.id}')">+${m.recomp}🪙</button>`:`<span style="color:${m.coletada?'#4caf50':'#ffd54f'};font-weight:900;font-size:.74rem;white-space:nowrap">${m.coletada?'✅':'🪙'+m.recomp}</span>`}`;
+    l.appendChild(d);
+  });
+  const pend=G.missoes.filter(m=>m.prog>=m.meta&&!m.coletada).length;
+  if(pend>0){const b=document.createElement('div');b.style.cssText='background:linear-gradient(135deg,#ffd54f,#ff9800);border-radius:13px;padding:11px;text-align:center;margin-top:9px;';b.innerHTML=`<span style="font-weight:900;color:#1a1a2e;font-size:.88rem">🎉 ${pend} missão(ões) prontas para coletar!</span>`;l.appendChild(b);}
+}
+
+function renderRanking(){
+  const l=document.getElementById('listaranking');
+  if(!l)return;
+  // Mostra carregando
+  l.innerHTML='<div style="text-align:center;padding:20px;color:rgba(255,255,255,.4)">⏳ Carregando ranking...</div>';
+  // Salva o jogador e carrega Firebase direto
+  salvarNoFirebase();
+  setTimeout(()=>{
+    try{
+      if(typeof firebase!=='undefined'&&firebase.apps&&firebase.apps.length>0){
+        carregarRankingFirebase();
+      } else {
+        renderRankingLocal(l);
+      }
+    }catch(e){
+      renderRankingLocal(l);
+    }
+  },500);
+}
+
+
+function renderRankingLocal(l){
+  if(!l)l=document.getElementById('listaranking');
+  l.innerHTML='';
+  const meuNome=G.apelido||(localStorage.getItem('cvn4_apelido'))||'🌱 Você';
+  const todos=[{nome:meuNome,nivel:G.nivel,moedas:G.moedas,eu:true}].sort((a,b)=>b.moedas-a.moedas);
+  const pos=todos.findIndex(r=>r.eu)+1;
+  const prog=Math.round((G.nivel/250)*100);
+  const cp=document.createElement('div');
+  cp.style.cssText='background:linear-gradient(135deg,rgba(255,213,79,.15),rgba(255,152,0,.15));border:2px solid rgba(255,213,79,.4);border-radius:13px;padding:11px;margin-bottom:11px;text-align:center;';
+  cp.innerHTML=`<div style="font-size:.73rem;color:rgba(255,255,255,.5);font-weight:700">SUA POSIÇÃO</div><div style="font-family:'Fredoka One',cursive;font-size:2.4rem;color:#ffd54f">#${pos}</div><div style="font-size:.76rem;color:rgba(255,255,255,.6)">Nível ${G.nivel}/250</div><div style="height:7px;background:rgba(255,255,255,.1);border-radius:10px;margin:5px 0;overflow:hidden"><div style="height:100%;width:${prog}%;background:linear-gradient(90deg,#4caf50,#ffd54f);border-radius:10px"></div></div><div style="font-size:.7rem;color:rgba(255,255,255,.4)">${prog}% do nível máximo</div><div style="font-size:.76rem;color:#ffd54f;font-weight:800;margin-top:3px">🪙 ${G.moedas.toLocaleString()} moedas</div>`;
+  l.appendChild(cp);
+  const med=['🥇','🥈','🥉'];
+  todos.forEach((r,i)=>{
+    const d=document.createElement('div');d.className='rankitem';
+    if(r.eu){d.style.borderColor='rgba(255,213,79,.5)';d.style.background='rgba(255,213,79,.08)';}
+    d.innerHTML=`<div class="rankpos">${med[i]||(i+1)}</div><div class="rankinfo"><h4>${r.nome}${r.eu?'<span class="badge-voce">VOCÊ</span>':''}</h4><p>⭐ Nível ${r.nivel}</p></div><span class="rankmoedas">🪙${r.moedas.toLocaleString()}</span>`;
+    l.appendChild(d);
+  });
+}
+
+function carregarRankingFirebase(){
+  const l=document.getElementById('listaranking');
+  if(!l)return;
+  if(typeof firebase==='undefined'||!firebase.apps||firebase.apps.length===0){
+    renderRankingLocal(l);return;
+  }
+  try{
+    firebase.database().ref('ranking').on('value',(snapshot)=>{
+      if(!document.getElementById('listaranking'))return;
+      const l2=document.getElementById('listaranking');
+      l2.innerHTML='';
+      const dados=snapshot.val()||{};
+      const lista=Object.values(dados).filter(d=>d&&d.nome);
+      // Garante que o jogador atual está sempre na lista
+      if(G.apelido&&!lista.find(r=>r.nome===G.apelido)){
+        lista.push({nome:G.apelido,nivel:G.nivel,moedas:G.moedas});
+      }
+      lista.sort((a,b)=>b.moedas-a.moedas);
+      const total=lista.length;
+      const pos=lista.findIndex(r=>r.nome===G.apelido)+1;
+      const prog=Math.round((G.nivel/250)*100);
+      // Card posição
+      const cp=document.createElement('div');
+      cp.style.cssText='background:linear-gradient(135deg,rgba(255,213,79,.15),rgba(255,152,0,.15));border:2px solid rgba(255,213,79,.4);border-radius:13px;padding:11px;margin-bottom:11px;text-align:center;';
+      cp.innerHTML=`<div style="font-size:.73rem;color:rgba(255,255,255,.5);font-weight:700">SUA POSIÇÃO</div><div style="font-family:'Fredoka One',cursive;font-size:2.4rem;color:#ffd54f">#${pos>0?pos:'1'}</div><div style="font-size:.76rem;color:rgba(255,255,255,.6)">${total} fazendeiro(s) ao vivo 🌍</div><div style="font-size:.65rem;color:#4caf50;margin-top:2px">🔥 Firebase conectado!</div><div style="height:7px;background:rgba(255,255,255,.1);border-radius:10px;margin:5px 0;overflow:hidden"><div style="height:100%;width:${prog}%;background:linear-gradient(90deg,#4caf50,#ffd54f);border-radius:10px"></div></div><div style="font-size:.76rem;color:#ffd54f;font-weight:800;margin-top:3px">🪙 ${G.moedas.toLocaleString()} moedas</div>`;
+      l2.appendChild(cp);
+      if(lista.length===0){
+        const sem=document.createElement('div');
+        sem.style.cssText='text-align:center;padding:20px;color:rgba(255,255,255,.5);font-size:.82rem;line-height:1.7;';
+        sem.innerHTML='🌱 Você é o primeiro!<br><span style="color:#ffd54f;font-weight:800">Envie o link para seus amigos<br>e eles aparecerão aqui! 🏆</span>';
+        l2.appendChild(sem);return;
+      }
+      const med=['🥇','🥈','🥉'];
+      lista.slice(0,50).forEach((r,i)=>{
+        const eu=r.nome===G.apelido;
+        const d=document.createElement('div');d.className='rank-online';
+        if(eu){d.style.borderColor='rgba(255,213,79,.6)';d.style.background='rgba(255,213,79,.12)';}
+        d.innerHTML=`<div class="rank-pos-num">${med[i]||(i+1)}</div><div style="flex:1"><div class="rank-nome">${r.nome}${eu?'<span class="badge-voce">VOCÊ</span>':''}</div><div class="rank-detalhes">⭐ Nível ${r.nivel||1}</div></div><div class="rank-moeda-val">🪙${Number(r.moedas||0).toLocaleString()}</div>`;
+        l2.appendChild(d);
+      });
+    });
+  }catch(e){
+    console.log('Firebase erro:',e);
+    renderRankingLocal(l);
+  }
+}
+
+// Salva no Firebase sempre que colher ou ganhar moedas
+function salvarNoFirebase(){
+  if(!G.apelido||!G.uid)return;
+  try{
+    if(typeof firebase!=='undefined'&&firebase.apps&&firebase.apps.length>0){
+      firebase.database().ref('ranking/'+G.uid).set({
+        nome:G.apelido,nivel:G.nivel,moedas:G.moedas,atualizado:Date.now()
+      }).then(()=>{
+        window.firebaseOK=true;
+        console.log('✅ Salvo no Firebase!',G.apelido);
+      }).catch(e=>{
+        console.log('❌ Firebase erro ao salvar:',e.message);
+      });
+    }
+  }catch(e){console.log('Erro Firebase:',e);}
+}
+
+// ===== ABAS =====
+function aba(id,el){
+  document.querySelectorAll('.aba').forEach(a=>a.classList.remove('ativa'));
+  el.classList.add('ativa');
+  document.querySelectorAll('.tela').forEach(t=>t.classList.toggle('ativa',t.id==='tela-'+id));
+  if(id==='fazenda'){renderTerreno();renderSementes();}
+  if(id==='loja'){renderLoja();renderTopo();}
+  if(id==='casa')renderCasa();
+  if(id==='amigos')renderAmigos();
+  if(id==='mercado')renderMercado();
+  if(id==='animais')renderAnimais();
+  if(id==='missoes')renderMissoes();
+  if(id==='ranking')renderRanking();
+  if(id==='tutorial'){} // conteúdo estático
+  if(id==='privacidade'){
+    // Forçar exibição da tela de privacidade
+    document.querySelectorAll('.tela').forEach(t=>{
+      t.style.display = t.id==='tela-privacidade' ? 'block' : 'none';
+    });
+    const tp=document.getElementById('tela-privacidade');
+    if(tp){
+      tp.style.display='block';
+      tp.style.overflowY='auto';
+      tp.style.maxHeight='calc(100vh - 148px)';
+      tp.style.padding='11px';
+      tp.scrollTop=0;
+    }
+  }
+  tocar('click');
+}
+
+// ===== AÇÕES =====
+function abrirModal(pid){
+  const o=document.getElementById('opcoresplantar');o.innerHTML='';
+  SEMENTES.filter(s=>G.nivel>=s.nivel).forEach(s=>{
+    const d=document.createElement('div');d.className='opcao';
+    d.innerHTML=`<span style="font-size:1.9rem">${s.emoji}</span><span style="font-size:.68rem;font-weight:800;color:#e8f5e9;display:block">${s.nome}</span><span style="font-size:.63rem;color:#ffd54f">🪙${s.preco}</span>`;
+    d.onclick=()=>{plantar(pid,s.id);fecharModal();};
+    o.appendChild(d);
+  });
+  document.getElementById('modal').classList.add('aberto');tocar('click');
+}
+function fecharModal(){document.getElementById('modal').classList.remove('aberto');}
+document.getElementById('modal').addEventListener('click',e=>{if(e.target===e.currentTarget)fecharModal();});
+
+function plantar(pid,sid){
+  const s=SEMENTES[sid];
+  if(G.moedas<s.preco){notif('❌ Moedas insuficientes!');return;}
+  G.moedas-=s.preco;
+  G.terreno[pid]={...G.terreno[pid],estado:'crescendo',plantaId:sid,em:Date.now()};
+  G.missoes.forEach(m=>{if(m.tipo==='plantar'&&!m.coletada)m.prog=Math.min(m.prog+1,m.meta);});
+  notif(`${s.emoji} ${s.nome} plantada!`);tocar('plantar');
+  particula(pid,s.emoji);pReagir('plantar');
+  renderTerreno();renderTopo();salvar();
+}
+
+function colher(pid){
+  const p=G.terreno[pid],s=SEMENTES[p.plantaId];
+  const cb=CLIMAS[climaIdx].bonus,fb=G.compras.includes('fertilizante')?1.5:1;
+  const ganho=Math.floor(s.venda*fb*cb);
+  G.moedas+=ganho;G.xp+=Math.floor(s.xp*cb);
+  G.terreno[pid]={...p,estado:'vazio',plantaId:null,em:null};
+  G.estoque['f'+s.id]=(G.estoque['f'+s.id]||0)+1;
+  G.missoes.forEach(m=>{if(m.tipo==='colher'&&!m.coletada)m.prog=Math.min(m.prog+1,m.meta);});
+  verificarNivel();
+  notif(`${s.emoji} +${ganho}🪙 +${Math.floor(s.xp*cb)}XP`);tocar('colher');
+  particula(pid,'🪙');particula(pid,'⭐');pReagir('colher');bump('pillmoedas');
+  renderTerreno();renderTopo();salvar();salvarNoFirebase();
+}
+
+function comprar(id,preco,tipo,casaId){
+  if(id!=='p6'&&G.compras.includes(id)){notif('✅ Já comprado!');return;}
+  if(preco>0&&G.moedas<preco){notif('❌ Moedas insuficientes!');return;}
+  if(preco>0)G.moedas-=preco;
+  if(!G.compras.includes(id))G.compras.push(id);
+  if(tipo==='parcela'){
+    // Abre TODOS os bloqueados de uma vez (fix para quem já comprou)
+    let c=0;G.terreno.forEach(p=>{if(p.estado==='bloqueado'){p.estado='vazio';c++;}});
+    if(c===0)notif('✅ Todos os terrenos já estão abertos!');
+    else notif(`🌿 ${c} terreno(s) desbloqueado(s)!`);
+    renderTerreno();
+  }else if(tipo==='casa'){
+    G.casaTipo=casaId;iniciarImposto();
+    notif('🏠 Casa comprada! Pague o imposto! 🏛️');renderCasa();
+  }else notif('✅ Item comprado!');
+  tocar('comprar');pReagir('comprar');renderTopo();renderLoja();salvar();
+}
+
+function comprarMovel(id,preco){
+  if(G.moveis.includes(id)){notif('✅ Já instalado!');return;}
+  if(G.casaTipo===0){notif('🏚️ Compre uma casa primeiro!');return;}
+  if(G.moedas<preco){notif('❌ Moedas insuficientes!');return;}
+  G.moedas-=preco;G.moveis.push(id);
+  notif('🛋️ Móvel instalado!');tocar('comprar');
+  renderTopo();renderLoja();renderCasa();salvar();
+}
+
+function coletarMissao(id){
+  const m=G.missoes.find(x=>x.id===id);
+  if(!m||m.coletada)return;
+  G.moedas+=m.recomp;G.xp+=m.xpR;m.coletada=true;
+  verificarNivel();
+  notif(`🎉 Missão! +${m.recomp}🪙`);tocar('nivel');bump('pillmoedas');
+  renderMissoes();renderTopo();salvar();
+}
+
+function verificarNivel(){
+  while(G.xp>=G.xpMax){
+    G.xp-=G.xpMax;G.nivel++;
+    if(G.nivel<=20)G.xpMax=Math.floor(80*Math.pow(1.3,G.nivel));
+    else if(G.nivel<=100)G.xpMax=Math.floor(80*Math.pow(1.3,20)*Math.pow(1.15,G.nivel-20));
+    else G.xpMax=Math.floor(80*Math.pow(1.3,20)*Math.pow(1.15,80)*Math.pow(1.08,G.nivel-100));
+    mostrarNivelUp();tocar('nivel');pReagir('nivel');renderSementes();
+  }
+}
+
+function mostrarNivelUp(){
+  const marcos={10:{emoji:'🏅',titulo:'Aprendiz!',bonus:500,msg:'Desbloqueou: 🍌 Banana!'},20:{emoji:'🌟',titulo:'Intermediário!',bonus:2000,msg:'Desbloqueou: 🍉 Melancia!'},25:{emoji:'🏆',titulo:'Avançado!',bonus:5000,msg:'Desbloqueou: 🥥 Coco!'},30:{emoji:'💎',titulo:'Expert!',bonus:10000,msg:'Desbloqueou: 🍐 Pêra Dourada!'},50:{emoji:'👑',titulo:'Mestre!',bonus:50000,msg:'Você é um Mestre Fazendeiro!'},100:{emoji:'🌌',titulo:'Lendário!',bonus:200000,msg:'LENDA DA FAZENDA!'},250:{emoji:'🌠',titulo:'DIVINO!',bonus:1000000,msg:'MÁXIMO! Você conquistou tudo!'}};
+  const marco=marcos[G.nivel];
+  if(marco)G.moedas+=marco.bonus;
+  const d=document.createElement('div');d.className='nivelup';
+  d.innerHTML=`<div class="nivelupbox"><div style="font-size:${marco?'4':'3.5'}rem">${marco?marco.emoji:'🎉'}</div><h2>Nível ${G.nivel}!</h2>${marco?`<p style="color:#ffd54f;font-weight:900;font-size:1rem">${marco.titulo}</p><p style="color:rgba(255,255,255,.8);font-size:.85rem">${marco.msg}</p><p style="color:#4caf50;font-weight:800">🎁 Bônus: +🪙${marco.bonus.toLocaleString()}</p>`:'<p style="color:rgba(255,255,255,.6)">Continue plantando!</p>'}<button class="btnokn" onclick="this.closest('.nivelup').remove()">Continuar! 🚀</button></div>`;
+  document.body.appendChild(d);
+}
+
+// ===== AMIGOS =====
+function removerAmigo(id){
+  G.amigos=G.amigos.filter(a=>a.id!==id);
+  salvar();
+  renderAmigos();
+  notif('👋 Amigo removido!');
+}
+
+function addAmigo(){
+  const inp=document.getElementById('inputamigo');const nome=inp.value.trim();
+  if(!nome){notif('❌ Digite um nome!');return;}
+  const avt=['👨','👩','🧑','👴','👵'];
+  G.amigos.push({id:'u'+Date.now(),nome,avatar:avt[Math.floor(Math.random()*avt.length)],nivel:Math.floor(Math.random()*10)+1,online:Math.random()>.5,fazenda:Array(16).fill('')});
+  inp.value='';notif(`👫 ${nome} adicionado!`);tocar('comprar');renderAmigos();salvar();
+}
+function visitarAmigo(id,nome,nivel){
+  const todos=[...AMIGOS_BASE,...(G.amigos||[])];
+  const a=todos.find(x=>x.id===id);
+  document.getElementById('visitanome').textContent=`🌾 Fazenda de ${nome}`;
+  document.getElementById('visitadesc').textContent=`⭐ Nível ${nivel}`;
+  const vf=document.getElementById('visitafazenda');vf.innerHTML='';
+  (a?.fazenda||Array(16).fill('')).forEach(p=>{const d=document.createElement('div');d.className='vparcela';d.textContent=p||'🌿';vf.appendChild(d);});
+  document.getElementById('mvisita').classList.add('aberto');tocar('click');
+}
+function fecharVisita(){document.getElementById('mvisita').classList.remove('aberto');}
+
+// ===== MERCADO =====
+function venderP(key,emoji,nome,preco){
+  if(!G.estoque[key]||G.estoque[key]===0){notif('❌ Sem estoque!');return;}
+  G.estoque[key]--;G.moedas+=preco;
+  notif(`${emoji} Vendido por 🪙${preco}!`);tocar('colher');bump('pillmoedas');
+  renderMercado();renderTopo();salvar();
+}
+function venderTudo(key,emoji,nome,preco,qtd){
+  if(!G.estoque[key]||G.estoque[key]===0){notif('❌ Sem estoque!');return;}
+  const total=G.estoque[key]*preco;G.moedas+=total;G.estoque[key]=0;
+  notif(`${emoji} Vendeu tudo! +🪙${total.toLocaleString()}`);tocar('colher');bump('pillmoedas');particula(0,emoji);
+  renderMercado();renderTopo();salvar();
+}
+function comprarMercado(emoji,nome,preco,vendedor){
+  if(G.moedas<preco){notif('❌ Moedas insuficientes!');return;}
+  G.moedas-=preco;notif(`${emoji} ${nome} comprado!`);tocar('comprar');bump('pillmoedas');
+  renderTopo();salvar();
+}
+function roubarAnimal(nome,tipo,val){
+  const def=ANIMAIS_ITENS.find(a=>a.id===tipo);if(!def)return;
+  if(G.moedas<50){notif('❌ Precisa de 50 moedas!');return;}
+  G.moedas-=50;G.moedas+=val;
+  G.animais.push({tipo:def.id,nome:'Resgatado',fome:50,pronto:false,coletado:false,proximaColeta:Date.now()+def.tempoColeta*1000,compradoEm:Date.now()});
+  notif(`${def.emoji} Animal resgatado! +🪙${val}`);tocar('nivel');particula(0,def.emoji);
+  renderAnimais();renderMercado();renderTopo();salvar();
+}
+function comprarCasaLeilao(preco){
+  if(G.casaTipo>0){notif('🏠 Já tem uma casa!');return;}
+  if(G.moedas<preco){notif('❌ Moedas insuficientes!');return;}
+  G.moedas-=preco;G.casaTipo=2;G.compras.push('casa2');iniciarImposto();
+  notif('🏡 Casa comprada no leilão!');tocar('nivel');particula(0,'🏡');
+  renderCasa();renderMercado();renderTopo();salvar();
+}
+
+// ===== IMPOSTO =====
+function iniciarImposto(){
+  const vals=[0,200,800,3000];
+  G.imposto={valor:vals[G.casaTipo]||0,prazo:Date.now()+60000,pago:false};
+  salvar();
+}
+function pagarImposto(){
+  if(!G.imposto||G.imposto.pago){notif('✅ Imposto já pago!');return;}
+  if(G.moedas<G.imposto.valor){notif('❌ Moedas insuficientes!');return;}
+  G.moedas-=G.imposto.valor;G.imposto.pago=true;
+  document.getElementById('alertaimposto').style.display='none';
+  notif('✅ Imposto pago! Casa segura! 🏠');tocar('comprar');
+  setTimeout(()=>{if(G.casaTipo>0){iniciarImposto();notif('🏛️ Novo imposto! Pague em 1 minuto!');}},60000);
+  renderMercado();renderTopo();salvar();
+}
+
+// ===== ANIMAIS =====
+function comprarAnimal(tipo){
+  const def=ANIMAIS_ITENS.find(a=>a.id===tipo);if(!def)return;
+  if(G.nivel<def.nivel){notif(`🔒 Precisa nível ${def.nivel}!`);return;}
+  if(G.moedas<def.preco){notif('❌ Moedas insuficientes!');return;}
+  G.moedas-=def.preco;
+  G.animais.push({tipo:def.id,nome:'',fome:100,pronto:false,coletado:false,proximaColeta:Date.now()+def.tempoColeta*1000,compradoEm:Date.now(),ultimaFome:Date.now(),timerRoubo:null,roubavel:false});
+  notif(`${def.emoji} ${def.nome} comprada! Alimente! 🌾`);tocar('comprar');particula(0,def.emoji);
+  renderAnimais();renderTopo();salvar();
+}
+function comprarRacao(id,preco){
+  if(G.moedas<preco){notif('❌ Moedas insuficientes!');return;}
+  G.moedas-=preco;G.racoes[id]=(G.racoes[id]||0)+5;
+  notif(`🌾 +5 ${RACOES_ITENS.find(r=>r.id===id)?.nome}!`);tocar('comprar');
+  renderAnimais();renderTopo();salvar();
+}
+function alimentar(racaoId){
+  const r=RACOES_ITENS.find(x=>x.id===racaoId);
+  if(!r||!G.racoes[racaoId]||G.racoes[racaoId]===0){notif('❌ Sem ração!');return;}
+  let n=0;
+  G.animais.forEach(a=>{if(r.animais.includes(a.tipo)&&a.fome<100){a.fome=Math.min(100,a.fome+50);a.timerRoubo=null;a.roubavel=false;n++;}});
+  if(n===0){notif('🐾 Animais já saciados!');return;}
+  G.racoes[racaoId]=Math.max(0,G.racoes[racaoId]-1);
+  document.getElementById('alertafome').style.display='none';
+  notif(`🌾 ${n} animal(is) alimentado(s)!`);tocar('colher');
+  renderAnimais();salvar();
+}
+function coletarAnimal(idx){
+  const a=G.animais[idx];const def=ANIMAIS_ITENS.find(x=>x.id===a.tipo);
+  if(!def||!a.pronto)return;
+  const bonus=a.fome>60?1:.5;const ganho=Math.floor(def.vendaProd*bonus);
+  G.moedas+=ganho;G.xp+=20;
+  G.estoque['a'+def.id]=(G.estoque['a'+def.id]||0)+1;
+  a.pronto=false;a.coletado=true;a.proximaColeta=Date.now()+def.tempoColeta*1000;
+  verificarNivel();notif(`${def.produto} +🪙${ganho}`);tocar('colher');bump('pillmoedas');particula(0,def.produto);
+  renderAnimais();renderTopo();salvar();
+}
+
+// ===== TICKS =====
+function tick(){
+  let mudou=false;
+  G.terreno.forEach(p=>{
+    if(p.estado==='crescendo'){
+      const s=SEMENTES[p.plantaId];const vel=G.compras.includes('regador')?2:1;
+      if((Date.now()-p.em)/1000>=s.tempo/vel){p.estado='pronta';mudou=true;}
+    }
+  });
+  if(mudou){renderTerreno();personagemFalar('Uma planta pronta! 🌾');}
+  G.missoes.forEach(m=>{if(m.tipo==='moedas')m.prog=G.moedas;if(m.tipo==='nivel')m.prog=G.nivel;});
+}
+
+let alertaFomeAtivo=false,afInterval;
+function tickAnimais(){
+  let mudou=false;
+  G.animais.forEach(a=>{
+    const def=ANIMAIS_ITENS.find(x=>x.id===a.tipo);if(!def)return;
+    if(!a.ultimaFome)a.ultimaFome=Date.now();
+    if((Date.now()-a.ultimaFome)/1000>=10){
+      a.fome=Math.max(0,a.fome-8);a.ultimaFome=Date.now();mudou=true;
+      if(a.fome<=30&&!a.timerRoubo){
+        a.timerRoubo=Date.now()+60000;a.roubavel=false;
+        if(!alertaFomeAtivo){alertaFomeAtivo=true;mostrarAlertaFome(def.emoji,def.nome);}
+      }
+      if(a.timerRoubo&&Date.now()>=a.timerRoubo&&!a.roubavel){
+        a.roubavel=true;notif(`🚨 ${def.emoji} pode ser ROUBADA!`);mudou=true;
+      }
+    }
+    if(!a.pronto&&a.coletado&&Date.now()>=a.proximaColeta){a.pronto=true;a.coletado=false;mudou=true;notif(`${def.emoji} pronta para coletar!`);}
+    if(!a.pronto&&!a.coletado&&Date.now()>=a.proximaColeta){a.pronto=true;mudou=true;}
+  });
+  if(mudou)renderAnimais();
+}
+
+function mostrarAlertaFome(emoji,nome){
+  const el=document.getElementById('alertafome');
+  document.getElementById('afemoji').textContent=emoji;
+  document.getElementById('afnome').textContent=nome+' com FOME!';
+  el.style.display='block';
+  let c=60;document.getElementById('afcount').textContent=c+'s';
+  clearInterval(afInterval);
+  afInterval=setInterval(()=>{
+    c--;document.getElementById('afcount').textContent=c+'s';
+    if(c<=0){clearInterval(afInterval);el.style.display='none';alertaFomeAtivo=false;}
+  },1000);
+}
+
+let alertaImpostoAtivo=false,aiInterval;
+function tickImposto(){
+  if(G.casaTipo===0||!G.imposto)return;
+  if(!G.imposto.pago){
+    const rest=G.imposto.prazo-Date.now();
+    if(rest<=60000&&rest>0&&!alertaImpostoAtivo){
+      alertaImpostoAtivo=true;mostrarAlertaImposto(Math.ceil(rest/1000),false);
+    }
+    if(rest<=0&&!G.imposto.casaEmRisco){
+      G.imposto.casaEmRisco=true;alertaImpostoAtivo=false;
+      mostrarAlertaImposto(60,true);notif('🏚️ Imposto venceu! Casa no leilão!');
+    }
+    if(rest<=-60000&&G.casaTipo>0){
+      notif('😱 Você perdeu sua casa!');
+      G.casaTipo=0;G.compras=G.compras.filter(c=>!c.startsWith('casa'));
+      G.imposto={valor:0,prazo:0,pago:true};alertaImpostoAtivo=false;
+      document.getElementById('alertaimposto').style.display='none';
+      renderCasa();renderMercado();salvar();
+    }
+  }else{alertaImpostoAtivo=false;}
+  const abam=document.querySelector('#tela-mercado.ativa');if(abam)renderMercado();
+}
+
+function mostrarAlertaImposto(seg,leilao){
+  const el=document.getElementById('alertaimposto');
+  document.getElementById('aiemoji').textContent=leilao?'🔨':'🏛️';
+  document.getElementById('ainome').textContent=leilao?'Casa no LEILÃO!':'Pague o Imposto!';
+  document.getElementById('aidesc').textContent=leilao?'Outro jogador pode comprar em:':'Sua casa em risco!';
+  document.getElementById('aibtnpagar').textContent=`Pagar 🪙${G.imposto?.valor||0}`;
+  el.style.display='block';
+  let c=seg;document.getElementById('aicount').textContent=c+'s';
+  clearInterval(aiInterval);
+  aiInterval=setInterval(()=>{
+    c--;document.getElementById('aicount').textContent=c+'s';
+    if(c<=0){clearInterval(aiInterval);el.style.display='none';alertaImpostoAtivo=false;}
+  },1000);
+}
+
+// ===== UTILS =====
+function fmt(s){if(s<60)return s+'s';if(s<3600)return Math.floor(s/60)+'m';return Math.floor(s/3600)+'h';}
+function notif(msg){const n=document.getElementById('notif');n.textContent=msg;n.classList.add('show');clearTimeout(n._t);n._t=setTimeout(()=>n.classList.remove('show'),2200);}
+function bump(id){const el=document.getElementById(id);el.classList.remove('bump');void el.offsetWidth;el.classList.add('bump');setTimeout(()=>el.classList.remove('bump'),400);}
+function particula(pid,emoji){
+  const c=document.getElementById('particulas');
+  const parcelas=document.querySelectorAll('.parcela');
+  let x=window.innerWidth/2,y=window.innerHeight/2;
+  if(parcelas[pid]){const r=parcelas[pid].getBoundingClientRect();x=r.left+r.width/2;y=r.top+r.height/2;}
+  for(let i=0;i<3;i++){const p=document.createElement('div');p.className='particula';p.textContent=emoji;p.style.cssText=`left:${x-15+Math.random()*30}px;top:${y-15}px;animation-delay:${i*.1}s;font-size:${.8+Math.random()*.8}rem`;c.appendChild(p);setTimeout(()=>p.remove(),1600);}
+}
+
+// ===== CAPA - INICIALIZAÇÃO =====
+function initCapa(){
+  criarNuvensC();criarEstrelasC();criarRaiosSolC();criarMontanhasC();criarPlantasC();criarMoedasC();criarFloresC();
+}
+
+function criarNuvensC(){
+  const c=document.getElementById('capa-ceu');
+  [{t:7,l:5,w:170,h:55,dur:38,del:0},{t:14,l:35,w:220,h:65,dur:52,del:7},{t:20,l:65,w:145,h:48,dur:34,del:18},{t:9,l:80,w:185,h:58,dur:48,del:26}].forEach(n=>{
+    const d=document.createElement('div');d.className='capa-nuvem';
+    d.style.cssText=`top:${n.t}%;left:${n.l}%;width:${n.w}px;height:${n.h}px;animation-duration:${n.dur}s;animation-delay:-${n.del}s;`;
+    ['50%','20%'].forEach((t,i)=>{const s=document.createElement('span');s.style.cssText=`position:absolute;width:${n.h*(1.2-i*.2)}px;height:${n.h*(1.2-i*.2)}px;border-radius:50%;background:inherit;top:-${n.h*.3}px;left:${n.w*(.2+i*.3)}px`;d.appendChild(s);});
+    c.appendChild(d);
+  });
+}
+function criarEstrelasC(){
+  const c=document.getElementById('capa-ceu');
+  for(let i=0;i<55;i++){const s=document.createElement('div');s.className='capa-estrela';const sz=Math.random()*3+1;s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*48}%;left:${Math.random()*100}%;animation-delay:${Math.random()*3}s;animation-duration:${1+Math.random()*3}s;opacity:.25`;c.appendChild(s);}
+}
+function criarRaiosSolC(){
+  const r=document.getElementById('capa-raiosol');
+  for(let i=0;i<12;i++){const ray=document.createElement('div');ray.className='craio';ray.style.transform=`rotate(${i*30}deg)`;r.appendChild(ray);}
+}
+function criarMontanhasC(){
+  const m=document.getElementById('capa-campo');
+  [{c:'#1a3a0a',h:180,w:280,x:-20},{c:'#223a0f',h:150,w:240,x:130},{c:'#1f4010',h:200,w:300,x:270},{c:'#193508',h:160,w:250,x:450},{c:'#254a12',h:145,w:230,x:600},{c:'#1a3a0a',h:190,w:270,x:780}].forEach(mn=>{
+    const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');svg.style.cssText=`position:absolute;bottom:100%;left:${mn.x}px;`;svg.setAttribute('width',mn.w);svg.setAttribute('height',mn.h);
+    const p=document.createElementNS('http://www.w3.org/2000/svg','path');p.setAttribute('d',`M0,${mn.h} L${mn.w/2},0 L${mn.w},${mn.h} Z`);p.setAttribute('fill',mn.c);
+    const nv=document.createElementNS('http://www.w3.org/2000/svg','path');nv.setAttribute('d',`M${mn.w/2-28},${mn.h*.28} L${mn.w/2},0 L${mn.w/2+28},${mn.h*.28} Z`);nv.setAttribute('fill','rgba(255,255,255,.15)');
+    svg.appendChild(p);svg.appendChild(nv);m.appendChild(svg);
+  });
+}
+function criarPlantasC(){
+  const c=document.getElementById('capa-campo');
+  ['🌽','🥕','🍅','🌽','🌾','🥕','🍓','🌽','🌾','🍅','🥕','🌽','🍍','🍌'].forEach((p,i)=>{
+    const el=document.createElement('div');el.className='cplanta';el.textContent=p;
+    el.style.cssText=`left:${(i/13)*96+2}%;animation-delay:${i*.25}s;font-size:${1.5+Math.random()*.5}rem`;
+    c.appendChild(el);
+  });
+}
+function criarMoedasC(){
+  const emojis=['🪙','💰','✨','🌟'];
+  setInterval(()=>{
+    const d=document.createElement('div');d.className='cmoeda-cai';
+    d.textContent=emojis[Math.floor(Math.random()*emojis.length)];
+    d.style.cssText=`left:${Math.random()*100}%;animation-duration:${3+Math.random()*4}s;font-size:${.8+Math.random()*1.1}rem;top:-30px`;
+    document.getElementById('capa')?.appendChild(d);
+    setTimeout(()=>d.remove(),8000);
+  },700);
+}
+function criarFloresC(){
+  const flores=['🌸','🌺','🌻','🌼','🍀','🌷','🌿'];
+  setInterval(()=>{
+    const d=document.createElement('div');d.className='cflor';
+    d.textContent=flores[Math.floor(Math.random()*flores.length)];
+    d.style.cssText=`left:${Math.random()*100}%;bottom:${20+Math.random()*40}%;animation-duration:${9+Math.random()*7}s;animation-delay:${Math.random()}s`;
+    document.getElementById('capa')?.appendChild(d);
+    setTimeout(()=>d.remove(),18000);
+  },1100);
+}
+
+function entrarJogo(){
+  try{
+    const btn=document.getElementById('capa-btn');
+    if(btn){btn.textContent='🌱 Entrando...';btn.disabled=true;}
+    // Tenta iniciar música
+    try{musicaJogoStart();}catch(e){console.log('música erro:',e);}
+    const capa=document.getElementById('capa');
+    if(capa){
+      capa.classList.add('saindo');
+      setTimeout(()=>{
+        capa.remove();
+        somAtivo=true;
+        const bs=document.getElementById('btnsom');
+        if(bs)bs.textContent='🔊';
+        setTimeout(()=>notif('🌱 Bem-vindo à sua fazenda! 🌾'),100);
+      },750);
+    }
+  }catch(e){
+    // Fallback: remove capa direto
+    const capa=document.getElementById('capa');
+    if(capa)capa.remove();
+    console.log('entrarJogo erro:',e);
+  }
+}
+
+// ===== MÚSICA DO JOGO (animada e viciante) =====
+let musicaJogoAtiva=false, mjNodes=[], mjLoop, mjBeat=0;
+
+// Escala maior de dó - alegre, viciante
+const ESCALA=[261,293,329,349,392,440,494,523,587,659,698,784];
+// Melodia principal - estilo chiptune fazenda
+const MEL_JOGO=[
+  [523,2],[523,1],[587,1],[659,2],[587,1],[523,1],
+  [440,2],[440,1],[493,1],[523,2],[0,2],
+  [587,2],[587,1],[659,1],[784,2],[659,1],[587,1],
+  [523,4],[0,4],
+  [659,2],[784,2],[880,2],[784,1],[659,1],
+  [587,2],[659,2],[523,4],
+  [440,2],[493,2],[523,2],[587,2],
+  [523,4],[0,4],
+];
+// Contra-melodia / harmonia
+const HAR_JOGO=[
+  [261,4],[329,4],[392,4],[329,4],
+  [220,4],[261,4],[293,4],[0,4],
+  [293,4],[369,4],[466,4],[369,4],
+  [261,4],[0,4],[0,4],[0,4],
+];
+// Baixo
+const BAIXO_JOGO=[
+  [130,4],[164,4],[196,4],[164,4],
+  [110,4],[130,4],[146,4],[0,4],
+  [146,4],[174,4],[196,4],[174,4],
+  [130,4],[0,8],
+];
+
+const BPM_JOGO=140, BEAT_JOGO=60/BPM_JOGO;
+let mjMelIdx=0, mjHarIdx=0, mjBxIdx=0;
+let mjTMel, mjTHar, mjTBx, mjTPerc;
+
+function tocarNotaJ(freq,dur,tipo,vol,delay){
+  if(!audioCtx||!somAtivo||freq===0)return;
+  const t=audioCtx.currentTime+(delay||0);
+  const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+  const f=audioCtx.createBiquadFilter();f.type='lowpass';f.frequency.value=2200;
+  o.type=tipo||'square';
+  o.frequency.setValueAtTime(freq,t);
+  g.gain.setValueAtTime(0,t);
+  g.gain.linearRampToValueAtTime(vol||.12,t+.02);
+  g.gain.setValueAtTime(vol||.12,t+dur*BEAT_JOGO*.55);
+  g.gain.exponentialRampToValueAtTime(.001,t+dur*BEAT_JOGO*.9);
+  o.connect(f);f.connect(g);g.connect(gainMaster);
+  o.start(t);o.stop(t+dur*BEAT_JOGO);
+}
+function stepMelJ(){
+  if(!somAtivo||!musicaJogoAtiva)return;
+  if(mjMelIdx>=MEL_JOGO.length)mjMelIdx=0;
+  const [f,d]=MEL_JOGO[mjMelIdx++];
+  tocarNotaJ(f,d,'square',.13);
+  mjTMel=setTimeout(stepMelJ,d*BEAT_JOGO*1000);
+}
+function stepHarJ(){
+  if(!somAtivo||!musicaJogoAtiva)return;
+  if(mjHarIdx>=HAR_JOGO.length)mjHarIdx=0;
+  const [f,d]=HAR_JOGO[mjHarIdx++];
+  tocarNotaJ(f,d,'triangle',.07);
+  mjTHar=setTimeout(stepHarJ,d*BEAT_JOGO*1000);
+}
+function stepBxJ(){
+  if(!somAtivo||!musicaJogoAtiva)return;
+  if(mjBxIdx>=BAIXO_JOGO.length)mjBxIdx=0;
+  const [f,d]=BAIXO_JOGO[mjBxIdx++];
+  if(f>0&&audioCtx&&somAtivo){
+    const t=audioCtx.currentTime;
+    const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+    const flt=audioCtx.createBiquadFilter();flt.type='lowpass';flt.frequency.value=450;
+    o.type='sawtooth';o.frequency.setValueAtTime(f,t);
+    g.gain.setValueAtTime(.15,t);g.gain.exponentialRampToValueAtTime(.001,t+d*BEAT_JOGO*.8);
+    o.connect(flt);flt.connect(g);g.connect(gainMaster);
+    o.start(t);o.stop(t+d*BEAT_JOGO);
+  }
+  mjTBx=setTimeout(stepBxJ,d*BEAT_JOGO*1000);
+}
+
+let mjPercBeat=0,mjTPercStep;
+function stepPercJ(){
+  if(!somAtivo||!musicaJogoAtiva)return;
+  const b=mjPercBeat%8;
+  // Kick no 1 e 5
+  if(b===0||b===4) percJ('kick');
+  // Snare no 2 e 6
+  if(b===2||b===6) percJ('snare');
+  // Hihat em todo beat
+  percJ('hihat');
+  // Hihat aberto a cada 4 beats
+  if(b===3||b===7) percJ('open');
+  mjPercBeat++;
+  mjTPercStep=setTimeout(stepPercJ,BEAT_JOGO*500); // semicolcheia
+}
+
+function percJ(t){
+  if(!audioCtx||!somAtivo)return;
+  const now=audioCtx.currentTime;
+  const buf=audioCtx.createBuffer(1,audioCtx.sampleRate*.15,audioCtx.sampleRate);
+  const data=buf.getChannelData(0);
+  for(let i=0;i<data.length;i++){
+    const r=Math.random()*2-1;
+    if(t==='kick')data[i]=r*Math.exp(-i/(audioCtx.sampleRate*.03))*1.5;
+    else if(t==='snare')data[i]=r*Math.exp(-i/(audioCtx.sampleRate*.022));
+    else if(t==='open')data[i]=r*Math.exp(-i/(audioCtx.sampleRate*.06))*.5;
+    else data[i]=r*Math.exp(-i/(audioCtx.sampleRate*.008))*.4;
+  }
+  const src=audioCtx.createBufferSource(),g=audioCtx.createGain();
+  src.buffer=buf;
+  g.gain.value=t==='kick'?.28:t==='snare'?.18:t==='open'?.12:.07;
+  src.connect(g);g.connect(gainMaster);
+  src.start(now);
+}
+
+function musicaJogoStart(){
+  if(musicaJogoAtiva)return;
+  try{
+    musicaJogoAtiva=true;
+    initAudio();
+    if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume();
+    mjMelIdx=0;mjHarIdx=0;mjBxIdx=0;mjPercBeat=0;
+    stepMelJ();stepHarJ();stepBxJ();stepPercJ();
+  }catch(e){console.log('musicaJogoStart erro:',e);}
+}
+function musicaJogoStop(){
+  musicaJogoAtiva=false;
+  clearTimeout(mjTMel);clearTimeout(mjTHar);clearTimeout(mjTBx);clearTimeout(mjTPercStep);
+}
+
+// Override toggleSom para controlar música do jogo também
+function toggleSom(){
+  somAtivo=!somAtivo;
+  document.getElementById('btnsom').textContent=somAtivo?'🔊':'🔇';
+  if(somAtivo){musicaJogoStart();}
+  else{musicaJogoStop();}
+  notif(somAtivo?'🔊 Som ativado!':'🔇 Som desativado!');
+}
+
+// ===== CADASTRO =====
+function confirmarCadastro(){
+  const inp=document.getElementById('inputApelido');
+  const apelido=(inp?inp.value.trim():'').substring(0,20);
+  if(!apelido||apelido.length<2){
+    if(inp){inp.style.borderColor='#f44336';setTimeout(()=>inp.style.borderColor='rgba(255,255,255,.2)',1500);}
+    notif('❌ Digite um apelido com pelo menos 2 letras!');return;
+  }
+  // Gera UID único para o jogador
+  if(!G.uid)G.uid='j_'+Date.now()+'_'+Math.random().toString(36).substr(2,9);
+  G.apelido=apelido;
+  localStorage.setItem('cvn4_apelido',apelido);
+  localStorage.setItem('cvn4_uid',G.uid);
+  // Esconde cadastro e mostra capa
+  document.getElementById('tela-cadastro').style.display='none';
+  // Salva no Firebase
+  salvarNoFirebase();
+  notif('🌱 Bem-vindo, '+apelido+'!');
+}
+
+function verificarCadastro(){
+  const apelidoSalvo=localStorage.getItem('cvn4_apelido');
+  const uidSalvo=localStorage.getItem('cvn4_uid');
+  if(apelidoSalvo&&uidSalvo){
+    G.apelido=apelidoSalvo;
+    G.uid=uidSalvo;
+    document.getElementById('tela-cadastro').style.display='none';
+    // Tenta salvar no Firebase várias vezes até funcionar
+    let tentativas=0;
+    const tentarSalvar=()=>{
+      tentativas++;
+      salvarNoFirebase();
+      if(tentativas<5)setTimeout(tentarSalvar,2000);
+    };
+    setTimeout(tentarSalvar,1500);
+  }
+}
+
+// ===== ANÚNCIO RECOMPENSADO =====
+let anuncioEmAndamento=false;
+const anunciosCooldown={};
+
+function assistirAnuncio(recompensa,id){
+  const agora=Date.now();
+  const cooldown=5*60*1000; // 5 minutos
+  if(anunciosCooldown[id]&&agora-anunciosCooldown[id]<cooldown){
+    const rest=Math.ceil((cooldown-(agora-anunciosCooldown[id]))/1000);
+    notif(`⏰ Aguarde ${fmt(rest)} para o próximo anúncio!`);return;
+  }
+  if(anuncioEmAndamento)return;
+  anuncioEmAndamento=true;
+  anunciosCooldown[id]=agora;
+  const duracao=recompensa>=800?30:15;
+  document.getElementById('anuncio-recompensa').textContent=`+${recompensa} 🪙 ao terminar!`;
+  document.getElementById('anuncio-timer').textContent=duracao;
+  document.getElementById('barra-anuncio').style.width='100%';
+  document.getElementById('modal-anuncio').classList.add('aberto');
+  tocar('click');
+  let t=duracao;
+  const iv=setInterval(()=>{
+    t--;
+    document.getElementById('anuncio-timer').textContent=t;
+    document.getElementById('barra-anuncio').style.width=(t/duracao*100)+'%';
+    if(t<=0){
+      clearInterval(iv);
+      document.getElementById('modal-anuncio').classList.remove('aberto');
+      anuncioEmAndamento=false;
+      G.moedas+=recompensa;
+      G.xp+=50;
+      verificarNivel();
+      notif(`🎉 +${recompensa}🪙 ganhos! Obrigado por assistir!`);
+      tocar('colher');bump('pillmoedas');particula(0,'💰');particula(0,'🪙');
+      salvarNoFirebase();
+      renderTopo();salvar();
+    }
+  },1000);
+}
+
+init();
+verificarCadastro();
+initCapa();
+</script>
+</body>
+</html>
